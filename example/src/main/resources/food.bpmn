@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:camunda="http://camunda.org/schema/1.0/bpmn" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" id="Definitions_1lsmffg" targetNamespace="http://bpmn.io/schema/bpmn" exporter="Camunda Modeler" exporterVersion="2.0.0">
+  <bpmn:process id="food" name="Make Food" isExecutable="true">
+    <bpmn:sequenceFlow id="SequenceFlow_0bii9d0" sourceRef="StartEvent_1" targetRef="Task_0866ekg" />
+    <bpmn:endEvent id="IntermediateThrowEvent_0p60d29" name="Food served">
+      <bpmn:incoming>SequenceFlow_1t0ubgf</bpmn:incoming>
+      <bpmn:signalEventDefinition signalRef="Signal_17p7jpz" />
+    </bpmn:endEvent>
+    <bpmn:sequenceFlow id="SequenceFlow_0l5o2zk" sourceRef="Task_0866ekg" targetRef="Task_0cshm9w" />
+    <bpmn:userTask id="Task_0866ekg" name="Prepare food">
+      <bpmn:extensionElements>
+        <camunda:properties>
+          <camunda:property name="simNextFire" value="${generator.nowPlusMinutes(generator.uniformInt(30,60))}" />
+        </camunda:properties>
+      </bpmn:extensionElements>
+      <bpmn:incoming>SequenceFlow_0bii9d0</bpmn:incoming>
+      <bpmn:outgoing>SequenceFlow_0l5o2zk</bpmn:outgoing>
+    </bpmn:userTask>
+    <bpmn:sequenceFlow id="SequenceFlow_1t0ubgf" sourceRef="Task_0cshm9w" targetRef="IntermediateThrowEvent_0p60d29" />
+    <bpmn:userTask id="Task_0cshm9w" name="Serve food">
+      <bpmn:extensionElements>
+        <camunda:properties>
+          <camunda:property name="simNextFire" value="${generator.nowPlusMinutes(generator.normal(&#34;serve&#34;,10,5))}" />
+        </camunda:properties>
+      </bpmn:extensionElements>
+      <bpmn:incoming>SequenceFlow_0l5o2zk</bpmn:incoming>
+      <bpmn:outgoing>SequenceFlow_1t0ubgf</bpmn:outgoing>
+    </bpmn:userTask>
+    <bpmn:startEvent id="StartEvent_1" name="noon">
+      <bpmn:outgoing>SequenceFlow_0bii9d0</bpmn:outgoing>
+      <bpmn:timerEventDefinition>
+        <bpmn:timeCycle xsi:type="bpmn:tFormalExpression">0 0 12 * * ?</bpmn:timeCycle>
+      </bpmn:timerEventDefinition>
+    </bpmn:startEvent>
+  </bpmn:process>
+  <bpmn:signal id="Signal_17p7jpz" name="Signal_FoodServed" />
+  <bpmn:message id="Message_0myfziw" name="Message_BoilerFailed" />
+  <bpmndi:BPMNDiagram id="BPMNDiagram_1">
+    <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="food">
+      <bpmndi:BPMNEdge id="SequenceFlow_0bii9d0_di" bpmnElement="SequenceFlow_0bii9d0">
+        <di:waypoint x="209" y="120" />
+        <di:waypoint x="279" y="120" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNShape id="EndEvent_0w2bj2g_di" bpmnElement="IntermediateThrowEvent_0p60d29">
+        <dc:Bounds x="599" y="102" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="586" y="145" width="62" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="SequenceFlow_0l5o2zk_di" bpmnElement="SequenceFlow_0l5o2zk">
+        <di:waypoint x="379" y="120" />
+        <di:waypoint x="439" y="120" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNShape id="UserTask_0znwvgx_di" bpmnElement="Task_0866ekg">
+        <dc:Bounds x="279" y="80" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="SequenceFlow_1t0ubgf_di" bpmnElement="SequenceFlow_1t0ubgf">
+        <di:waypoint x="539" y="120" />
+        <di:waypoint x="599" y="120" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNShape id="UserTask_1cjf3p3_di" bpmnElement="Task_0cshm9w">
+        <dc:Bounds x="439" y="80" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="StartEvent_0cb71tx_di" bpmnElement="StartEvent_1">
+        <dc:Bounds x="173" y="102" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="179" y="145" width="25" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</bpmn:definitions>

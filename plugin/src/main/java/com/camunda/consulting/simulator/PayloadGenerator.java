@@ -605,7 +605,7 @@ public class PayloadGenerator {
     
     LocalDateTime nextSample = now.plusNanos(randomizedIntervalNanos);
     if (nextSample.isBefore(todayMorning)) {
-      nextSample = todayMorning.plusNanos(randomizedIntervalNanos);
+      nextSample = todayMorning.plusNanos(randomizedIntervalNanos/2);
     }
     if (nextSample.isAfter(todayEvening)) {
       final LocalDateTime tomorrowMorning = todayMorning.plusDays(1);

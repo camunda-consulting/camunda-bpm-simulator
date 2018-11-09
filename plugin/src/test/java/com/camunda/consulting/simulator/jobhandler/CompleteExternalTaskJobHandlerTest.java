@@ -1,5 +1,11 @@
 package com.camunda.consulting.simulator.jobhandler;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.camunda.bpm.engine.test.assertions.ProcessEngineAssertions.assertThat;
+import static org.camunda.bpm.engine.test.assertions.ProcessEngineAssertions.init;
+import static org.camunda.bpm.engine.test.assertions.ProcessEngineTests.jobQuery;
+import static org.camunda.bpm.engine.test.assertions.ProcessEngineTests.runtimeService;
+
 import org.apache.ibatis.logging.LogFactory;
 import org.camunda.bpm.engine.runtime.ProcessInstance;
 import org.camunda.bpm.engine.test.Deployment;
@@ -12,15 +18,10 @@ import org.junit.Test;
 
 import com.camunda.consulting.simulator.PayloadGenerator;
 import com.camunda.consulting.simulator.SimulationExecutor;
-
-import static org.camunda.bpm.engine.test.assertions.ProcessEngineAssertions.assertThat;
-import static org.camunda.bpm.engine.test.assertions.ProcessEngineAssertions.init;
-import static org.camunda.bpm.engine.test.assertions.ProcessEngineTests.jobQuery;
-import static org.camunda.bpm.engine.test.assertions.ProcessEngineTests.runtimeService;
+import com.camunda.consulting.simulator.TestHelper;
 
 @Deployment(resources = "externalTaskCompleteModel.bpmn")
 public class CompleteExternalTaskJobHandlerTest {
-
 
   @Rule
   public ProcessEngineRule rule = new ProcessEngineRule();
@@ -32,6 +33,7 @@ public class CompleteExternalTaskJobHandlerTest {
   @Before
   public void setup() {
     init(rule.getProcessEngine());
+    TestHelper.removeCustomJobs(rule.getProcessEngine());
     Mocks.register("generator", new PayloadGenerator());
   }
 
@@ -48,6 +50,5 @@ public class CompleteExternalTaskJobHandlerTest {
     assertThat(processInstance).isEnded();
 
   }
-
 
 }

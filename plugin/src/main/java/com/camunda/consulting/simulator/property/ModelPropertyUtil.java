@@ -1,4 +1,4 @@
-package simulationproperty;
+package com.camunda.consulting.simulator.property;
 
 import java.util.Collection;
 import java.util.Collections;

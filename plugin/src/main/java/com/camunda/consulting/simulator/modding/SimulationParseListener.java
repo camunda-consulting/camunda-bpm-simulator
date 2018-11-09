@@ -30,8 +30,7 @@ import org.slf4j.LoggerFactory;
 import com.camunda.consulting.simulator.listener.ExternalTaskJobCreateListener;
 import com.camunda.consulting.simulator.listener.PayloadGeneratorListener;
 import com.camunda.consulting.simulator.listener.UserTaskCompleteJobCreateListener;
-
-import simulationproperty.ModelPropertyUtil;
+import com.camunda.consulting.simulator.property.ModelPropertyUtil;
 
 @SuppressWarnings("deprecation")
 public class SimulationParseListener implements BpmnParseListener {

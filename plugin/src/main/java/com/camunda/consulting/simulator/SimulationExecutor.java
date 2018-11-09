@@ -112,6 +112,9 @@ public class SimulationExecutor {
     } finally {
       ClockUtil.reset();
       progress = 1;
+      
+      updateStartTimersForCurrentTime(commandExecutor);
+
       if (metrics) {
         processEngineConfigurationImpl.getDbMetricsReporter().reportNow();
 
@@ -124,7 +127,6 @@ public class SimulationExecutor {
       if (jobExecutorEnabled) {
         processEngineConfigurationImpl.getJobExecutor().start();
       }
-      updateStartTimersForCurrentTime(commandExecutor);
     }
   }
 

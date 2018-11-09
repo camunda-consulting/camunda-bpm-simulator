@@ -1,5 +1,9 @@
 package com.camunda.consulting.simulator.jobhandler;
 
+import static org.camunda.bpm.engine.test.assertions.ProcessEngineAssertions.assertThat;
+import static org.camunda.bpm.engine.test.assertions.ProcessEngineAssertions.init;
+import static org.camunda.bpm.engine.test.assertions.ProcessEngineTests.runtimeService;
+
 import org.apache.ibatis.logging.LogFactory;
 import org.camunda.bpm.engine.runtime.ProcessInstance;
 import org.camunda.bpm.engine.test.Deployment;
@@ -12,10 +16,7 @@ import org.junit.Test;
 
 import com.camunda.consulting.simulator.PayloadGenerator;
 import com.camunda.consulting.simulator.SimulationExecutor;
-
-import static org.camunda.bpm.engine.test.assertions.ProcessEngineAssertions.assertThat;
-import static org.camunda.bpm.engine.test.assertions.ProcessEngineAssertions.init;
-import static org.camunda.bpm.engine.test.assertions.ProcessEngineTests.runtimeService;
+import com.camunda.consulting.simulator.TestHelper;
 
 public class FireEventJobHandlerTest {
 
@@ -29,6 +30,7 @@ public class FireEventJobHandlerTest {
   @Before
   public void setup() {
     init(rule.getProcessEngine());
+    TestHelper.removeCustomJobs(rule.getProcessEngine());
     Mocks.register("generator", new PayloadGenerator());
   }
 
@@ -44,7 +46,7 @@ public class FireEventJobHandlerTest {
     assertThat(processInstance).hasPassedInOrder("messageFired", "signalFired", "timerFired");
 
   }
-  
+
   @Deployment(resources = "eventbasedGatewayTestModel.bpmn")
   @Test
   public void shouldFireMessageNotSignal() {

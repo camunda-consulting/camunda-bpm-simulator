@@ -12,34 +12,29 @@ Optionally, all these properties can be set externally, for example in property 
 
 The plugin is able to simulate the past...
 
+## How-To
+
+Have a look at the example project, it is intended to be self explanatory.
+
 ## Properties for controlling
 
-### None start event
+### None/Message/Signal/Conditional start event
 
-Like timer start event, defined by expression.
+* `simNextFire` : `<expression giving date>`
+* `simInitBusinessKey` : `<expression giving string>`
+* `simInitPayload` : `<varname>=<expression giving arbitrary value>`
 
-### Message/Signal start event
+### Message Receive events, Receive Task, Signal receive events
 
-Correlates message/trigger sigal like timer start event, defined by expression.
+* `simNextFire` : `<expression giving date>`
 
-### Conditional start event
-
-Timer expression and payload expression needed.
-The plugin generates the payload when the timer is due and triggers the condition.
-
-### Message Receive events, Receive Task
-
-Correlate message after time, defined by expression.
-
-### Signal receive events
-
-Trigger signal after time, defined by expression.
-If no expression is given, we assume that the signal is thrown within the models.
+Note for signals: The signal is not delivered globally but only to the execution that waits at the receive event.
 
 ### User Task
 
-Complete after time, defined by expression.
-Ideas: Also simulate assignee, candidates, claiming...
+* `simNextFire` : `<expression giving date>`
+
+TODO: Also simulate assignee, candidates, claiming...
 
 ### Service Task (Send Task, Business Rule Task, Script Task)
 
@@ -47,21 +42,23 @@ Replace behaviour by no-op.
 
 ### External Service Task
 
-Complete after time, defined by expression.
+* `simNextFire` : `<expression giving date>`
 
+### Business Rule Task
 
-### all
+Replace behaviour by no-op, except DMN, this is "normally" called.
+
+### All Flow Elements
 
 #### Execution (Task) Listeners
 
 Replace by no-op.
 
-## Properties for payload generation
+#### Properties for payload generation
 
-Every flow node can have multiple properties named `simulatePayload` with value of the form `varname=juelExpression`.
-For expressions, the plugin provides 'stuff' with common data generation function.
+* `simGeneratePayload` : `<varname>=<expression giving arbitrary value>`
 
 ## TODO
 
 * think about throwing BPMN errors
-* think about keeping execution/task listeners
+* think about keeping execution/task listeners/

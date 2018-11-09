@@ -1,0 +1,16 @@
+spring.datasource:
+  url: jdbc:h2:./camunda-db;DB_CLOSE_DELAY=-1;MVCC=TRUE;DB_CLOSE_ON_EXIT=FALSE
+  username: sa
+  password: sa
+#  url: jdbc:postgresql://localhost/postgres
+#  username: postgres
+#  password: postgres
+spring.h2.console.enabled: true
+camunda.bpm:
+  admin-user:
+    id: demo
+    password: demo
+    firstName: Demo
+  filter:
+    create: All tasks
+server.port: 8080

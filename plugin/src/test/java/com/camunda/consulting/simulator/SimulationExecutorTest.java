@@ -19,9 +19,6 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 
-import com.camunda.consulting.simulator.PayloadGenerator;
-import com.camunda.consulting.simulator.SimulationExecutor;
-
 /**
  * Test case starting an in-memory database-backed Process Engine.
  */
@@ -40,6 +37,7 @@ public class SimulationExecutorTest {
   @Before
   public void setup() {
     init(rule.getProcessEngine());
+    TestHelper.removeCustomJobs(rule.getProcessEngine());
   }
 
   @Test

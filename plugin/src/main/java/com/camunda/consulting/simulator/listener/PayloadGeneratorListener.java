@@ -9,8 +9,8 @@ import org.camunda.bpm.model.bpmn.instance.BaseElement;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import simulationproperty.ModelPropertyUtil;
-import simulationproperty.Work;
+import com.camunda.consulting.simulator.property.ModelPropertyUtil;
+import com.camunda.consulting.simulator.property.Work;
 
 public class PayloadGeneratorListener extends AbstractTimerJobCreator implements ExecutionListener {
   public static final Logger LOG = LoggerFactory.getLogger(PayloadGeneratorListener.class);

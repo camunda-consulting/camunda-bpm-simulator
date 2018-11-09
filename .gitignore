@@ -29,3 +29,7 @@
 **/.project
 **/.settings
 **/.classpath
+
+# camunda
+**/camunda-db.mv.db
+**/camunda-license.txt

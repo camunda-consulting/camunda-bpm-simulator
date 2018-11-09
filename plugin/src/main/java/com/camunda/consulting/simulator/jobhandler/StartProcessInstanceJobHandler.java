@@ -21,9 +21,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.camunda.consulting.simulator.SimulatorPlugin;
-
-import simulationproperty.ModelPropertyUtil;
-import simulationproperty.Work;
+import com.camunda.consulting.simulator.property.ModelPropertyUtil;
+import com.camunda.consulting.simulator.property.Work;
 
 public class StartProcessInstanceJobHandler implements JobHandler<StartProcessInstanceJobHandler.StartProcessInstanceJobConfiguration> {
   private static final Logger LOG = LoggerFactory.getLogger(StartProcessInstanceJobHandler.class);

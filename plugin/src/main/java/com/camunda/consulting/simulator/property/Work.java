@@ -1,4 +1,4 @@
-package simulationproperty;
+package com.camunda.consulting.simulator.property;
 
 import org.camunda.bpm.engine.impl.el.Expression;
 

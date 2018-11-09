@@ -11,7 +11,7 @@
     </property>
     <property name="processEnginePlugins">
       <list>
-        <bean class="com.camunda.consulting.simulator.simulator.SimulatorPlugin" />
+        <bean class="com.camunda.consulting.simulator.SimulatorPlugin" />
       </list>
     </property>
   </bean>
