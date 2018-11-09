@@ -97,4 +97,22 @@
 		</dependency>
 
 	</dependencies>
+
+	<scm>
+		<url>https://github.com/camunda-consulting/camunda-bpm-simulator</url>
+		<connection>scm:git:git@github.com:camunda-consulting/camunda-bpm-simulator.git</connection>
+		<developerConnection>scm:git:git@github.com:camunda-consulting/camunda-bpm-simulator.git</developerConnection>
+		<tag>HEAD</tag>
+	</scm>
+
+	<distributionManagement>
+		<snapshotRepository>
+			<id>camunda-nexus</id>
+			<url>https://app.camunda.com/nexus/content/repositories/camunda-consulting-snapshots/</url>
+		</snapshotRepository>
+		<repository>
+			<id>camunda-nexus</id>
+			<url>https://app.camunda.com/nexus/content/repositories/camunda-consulting/</url>
+		</repository>
+	</distributionManagement>
 </project>
