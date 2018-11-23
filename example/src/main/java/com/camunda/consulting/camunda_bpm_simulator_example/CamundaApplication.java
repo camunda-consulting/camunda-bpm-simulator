@@ -20,6 +20,9 @@ public class CamundaApplication {
     SimulationExecutor.execute(DateTime.now().minusMonths(1).toDate(), DateTime.now().toDate());
   }
 
+  /**
+   * Makes the PayloadGenerator available in expressions and scripts.
+   */
   @Bean
   public PayloadGenerator generator() {
     return new PayloadGenerator();
