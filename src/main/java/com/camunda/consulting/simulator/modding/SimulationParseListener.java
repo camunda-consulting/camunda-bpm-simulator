@@ -37,18 +37,20 @@ public class SimulationParseListener implements BpmnParseListener {
 
   private static final Logger LOG = LoggerFactory.getLogger(SimulationParseListener.class);
   public static final String PROPERTYNAME_SIMULATE_START_EVENT = "simulateStartEvent";
+  public static final String PROPERTYNAME_KEEP_LISTENERS = "simulateStartEvent";
 
   public static class NoOpActivityBehavior extends TaskActivityBehavior {
-
   }
 
   @Override
   public void parseProcess(Element processElement, ProcessDefinitionEntity processDefinition) {
+    checkKeepListeners(processElement, processDefinition);
     stripExecutionListeners(processDefinition);
   }
 
   @Override
   public void parseStartEvent(Element startEventElement, ScopeImpl scope, ActivityImpl startEventActivity) {
+    checkKeepListeners(startEventElement, startEventActivity);
     addPayloadGeneratingListener(startEventActivity);
 
     if (scope instanceof ProcessDefinitionEntity) {
@@ -74,28 +76,33 @@ public class SimulationParseListener implements BpmnParseListener {
 
   @Override
   public void parseExclusiveGateway(Element exclusiveGwElement, ScopeImpl scope, ActivityImpl activity) {
+    checkKeepListeners(exclusiveGwElement, activity);
     addPayloadGeneratingListener(activity);
   }
 
   @Override
   public void parseInclusiveGateway(Element inclusiveGwElement, ScopeImpl scope, ActivityImpl activity) {
+    checkKeepListeners(inclusiveGwElement, activity);
     addPayloadGeneratingListener(activity);
   }
 
   @Override
   public void parseParallelGateway(Element parallelGwElement, ScopeImpl scope, ActivityImpl activity) {
+    checkKeepListeners(parallelGwElement, activity);
     addPayloadGeneratingListener(activity);
   }
 
   @Override
   public void parseScriptTask(Element scriptTaskElement, ScopeImpl scope, ActivityImpl activity) {
+    checkKeepListeners(scriptTaskElement, activity);
     addPayloadGeneratingListener(activity);
 
-    activity.setActivityBehavior(new NoOpActivityBehavior());
+    replaceBehaviourByNoOp(scriptTaskElement, activity);
   }
 
   @Override
   public void parseServiceTask(Element serviceTaskElement, ScopeImpl scope, ActivityImpl activity) {
+    checkKeepListeners(serviceTaskElement, activity);
     addPayloadGeneratingListener(activity);
 
     String type = serviceTaskElement.attributeNS(BpmnParse.CAMUNDA_BPMN_EXTENSIONS_NS, BpmnParse.TYPE);
@@ -103,36 +110,42 @@ public class SimulationParseListener implements BpmnParseListener {
       addExternalTaskCompleteJobCreatingListener(activity);
     } else {
       // strip behavior for everything but external task
-      activity.setActivityBehavior(new NoOpActivityBehavior());
+      replaceBehaviourByNoOp(serviceTaskElement, activity);
     }
   }
 
   @Override
   public void parseBusinessRuleTask(Element businessRuleTaskElement, ScopeImpl scope, ActivityImpl activity) {
+    checkKeepListeners(businessRuleTaskElement, activity);
     addPayloadGeneratingListener(activity);
 
     // strip behavior for everything but DMN
     String decisionRef = businessRuleTaskElement.attributeNS(BpmnParse.CAMUNDA_BPMN_EXTENSIONS_NS, "decisionRef");
     if (decisionRef == null) {
-      activity.setActivityBehavior(new NoOpActivityBehavior());
+      replaceBehaviourByNoOp(businessRuleTaskElement, activity);
     }
   }
 
   @Override
   public void parseTask(Element taskElement, ScopeImpl scope, ActivityImpl activity) {
+    checkKeepListeners(taskElement, activity);
     addPayloadGeneratingListener(activity);
   }
 
   @Override
   public void parseManualTask(Element manualTaskElement, ScopeImpl scope, ActivityImpl activity) {
+    checkKeepListeners(manualTaskElement, activity);
     addPayloadGeneratingListener(activity);
   }
 
   @Override
   public void parseUserTask(Element userTaskElement, ScopeImpl scope, ActivityImpl activity) {
+    boolean keepListeners = checkKeepListeners(userTaskElement, activity);
     addPayloadGeneratingListener(activity);
 
-    ((UserTaskActivityBehavior) activity.getActivityBehavior()).getTaskDefinition().getTaskListeners().clear();
+    if (!keepListeners) {
+      ((UserTaskActivityBehavior) activity.getActivityBehavior()).getTaskDefinition().getTaskListeners().clear();
+    }
 
     addUserTaskCompleteJobCreatingListener(activity);
 
@@ -140,6 +153,8 @@ public class SimulationParseListener implements BpmnParseListener {
 
   @Override
   public void parseEndEvent(Element endEventElement, ScopeImpl scope, ActivityImpl activity) {
+    checkKeepListeners(endEventElement, activity);
+    addPayloadGeneratingListener(activity);
   }
 
   @Override
@@ -153,11 +168,13 @@ public class SimulationParseListener implements BpmnParseListener {
 
   @Override
   public void parseSubProcess(Element subProcessElement, ScopeImpl scope, ActivityImpl activity) {
+    checkKeepListeners(subProcessElement, activity);
     addPayloadGeneratingListener(activity);
   }
 
   @Override
   public void parseCallActivity(Element callActivityElement, ScopeImpl scope, ActivityImpl activity) {
+    checkKeepListeners(callActivityElement, activity);
     addPayloadGeneratingListener(activity);
   }
 
@@ -167,12 +184,14 @@ public class SimulationParseListener implements BpmnParseListener {
 
   @Override
   public void parseSequenceFlow(Element sequenceFlowElement, ScopeImpl scopeElement, TransitionImpl transition) {
+    checkKeepListeners(sequenceFlowElement, transition);
   }
 
   @Override
   public void parseSendTask(Element sendTaskElement, ScopeImpl scope, ActivityImpl activity) {
+    checkKeepListeners(sendTaskElement, activity);
     addPayloadGeneratingListener(activity);
-    activity.setActivityBehavior(new NoOpActivityBehavior());
+    replaceBehaviourByNoOp(sendTaskElement, activity);
   }
 
   @Override
@@ -189,6 +208,7 @@ public class SimulationParseListener implements BpmnParseListener {
 
   @Override
   public void parseReceiveTask(Element receiveTaskElement, ScopeImpl scope, ActivityImpl activity) {
+    checkKeepListeners(receiveTaskElement, activity);
     addPayloadGeneratingListener(activity);
   }
 
@@ -206,11 +226,13 @@ public class SimulationParseListener implements BpmnParseListener {
 
   @Override
   public void parseEventBasedGateway(Element eventBasedGwElement, ScopeImpl scope, ActivityImpl activity) {
+    checkKeepListeners(eventBasedGwElement, activity);
     addPayloadGeneratingListener(activity);
   }
 
   @Override
   public void parseTransaction(Element transactionElement, ScopeImpl scope, ActivityImpl activity) {
+    checkKeepListeners(transactionElement, activity);
     addPayloadGeneratingListener(activity);
   }
 
@@ -220,6 +242,7 @@ public class SimulationParseListener implements BpmnParseListener {
 
   @Override
   public void parseIntermediateThrowEvent(Element intermediateEventElement, ScopeImpl scope, ActivityImpl activity) {
+    checkKeepListeners(intermediateEventElement, activity);
     addPayloadGeneratingListener(activity);
 
     // strip behavior only for message throw events
@@ -231,11 +254,13 @@ public class SimulationParseListener implements BpmnParseListener {
 
   @Override
   public void parseIntermediateCatchEvent(Element intermediateEventElement, ScopeImpl scope, ActivityImpl activity) {
+    checkKeepListeners(intermediateEventElement, activity);
     addPayloadGeneratingListener(activity);
   }
 
   @Override
   public void parseBoundaryEvent(Element boundaryEventElement, ScopeImpl scopeElement, ActivityImpl nestedActivity) {
+    checkKeepListeners(boundaryEventElement, nestedActivity);
     addPayloadGeneratingListener(nestedActivity);
   }
 
@@ -258,6 +283,7 @@ public class SimulationParseListener implements BpmnParseListener {
 
   @Override
   public void parseConditionalStartEventForEventSubprocess(Element element, ActivityImpl conditionalActivity, boolean interrupting) {
+    checkKeepListeners(element, conditionalActivity);
     addPayloadGeneratingListener(conditionalActivity);
   }
 
@@ -275,6 +301,24 @@ public class SimulationParseListener implements BpmnParseListener {
     ((UserTaskActivityBehavior) activity.getActivityBehavior()).getTaskDefinition().addTaskListener(TaskListener.EVENTNAME_CREATE,
         UserTaskCompleteJobCreateListener.instance());
 
+  }
+
+  private void replaceBehaviourByNoOp(Element element, ActivityImpl activity) {
+    // we only replace the behavior if simCallRealImplementation is not
+    // explicitly set to true
+    Optional<String> property = ModelPropertyUtil.readCamundaProperty(element, ModelPropertyUtil.CAMUNDA_PROPERTY_SIM_CALL_REAL_IMPLEMENTATION);
+    if (!ModelPropertyUtil.isTrue(property)) {
+      activity.setActivityBehavior(new NoOpActivityBehavior());
+    }
+  }
+
+  private boolean checkKeepListeners(Element processElement, CoreModelElement processDefinition) {
+    Optional<String> property = ModelPropertyUtil.readCamundaProperty(processElement, ModelPropertyUtil.CAMUNDA_PROPERTY_SIM_KEEP_LISTENERS);
+    if (ModelPropertyUtil.isTrue(property)) {
+      processDefinition.setProperty(PROPERTYNAME_KEEP_LISTENERS, true);
+      return true;
+    }
+    return false;
   }
 
   private void stripExecutionListeners(ProcessDefinitionEntity processDefinitionEntity) {
@@ -301,14 +345,19 @@ public class SimulationParseListener implements BpmnParseListener {
   }
 
   private void stripNonBuiltinListeners(CoreModelElement element) {
-    element.getListeners().keySet().forEach(eventType -> {
-      for (Iterator<DelegateListener<?>> i = element.getListeners(eventType).iterator(); i.hasNext();) {
-        DelegateListener<?> currentListener = i.next();
-        if (!element.getBuiltInListeners(eventType).contains(currentListener)) {
-          i.remove();
+    // only strip listeners if not explicitly wanted to be kept by
+    // simKeepListeners
+    final Object keepListeners = element.getProperty(PROPERTYNAME_KEEP_LISTENERS);
+    if (keepListeners == null || !keepListeners.equals(true)) {
+      element.getListeners().keySet().forEach(eventType -> {
+        for (Iterator<DelegateListener<?>> i = element.getListeners(eventType).iterator(); i.hasNext();) {
+          DelegateListener<?> currentListener = i.next();
+          if (!element.getBuiltInListeners(eventType).contains(currentListener)) {
+            i.remove();
+          }
         }
-      }
-    });
+      });
+    }
   }
 
 }

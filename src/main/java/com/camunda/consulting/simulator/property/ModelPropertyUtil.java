@@ -1,5 +1,6 @@
 package com.camunda.consulting.simulator.property;
 
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Iterator;
@@ -26,6 +27,17 @@ public class ModelPropertyUtil {
   public static final String CAMUNDA_PROPERTY_SIM_GENERATE_PAYLOAD = "simGeneratePayload";
   public static final String CAMUNDA_PROPERTY_SIM_INIT_PAYLOAD = "simInitPayload";
   public static final String CAMUNDA_PROPERTY_SIM_INIT_BUSINESS_KEY = "simInitBusinessKey";
+  public static final String CAMUNDA_PROPERTY_SIM_CALL_REAL_IMPLEMENTATION = "simCallRealImplementation";
+  public static final String CAMUNDA_PROPERTY_SIM_KEEP_LISTENERS = "simKeepListeners";
+  public static final String[] TRUE = {"true", "True", "yes", "Yes"};
+  
+  public static boolean isTrue(Optional<String> propertyValue) {
+    return propertyValue.isPresent() && isTrue(propertyValue.get());
+  }
+  
+  public static boolean isTrue(String propertyValue) {
+    return Arrays.asList(TRUE).contains(propertyValue);
+  }
 
   public static Optional<String> getNextFire(ModelElementInstance elementInstance) {
     return readCamundaProperty((BaseElement) elementInstance, CAMUNDA_PROPERTY_SIM_NEXT_FIRE);

@@ -38,7 +38,9 @@ TODO: Also simulate assignee, candidates, claiming...
 
 ### Service Task (Send Task, Business Rule Task, Script Task)
 
-Replace behaviour by no-op.
+Replace behaviour by no-op, except following is set:
+
+* `simCallRealImplementation` : `true`
 
 ### External Service Task
 
@@ -52,7 +54,9 @@ Replace behaviour by no-op, except DMN, this is "normally" called.
 
 #### Execution (Task) Listeners
 
-Replace by no-op.
+Always stripped away, except the following is set:
+
+* `simKeepListeners` : `true`
 
 #### Properties for payload generation
 

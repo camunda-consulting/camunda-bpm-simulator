@@ -48,12 +48,20 @@ public class SimulationParseListenerTest {
     execute(job()); // multi-inst 1
     execute(job()); // multi-inst 2
 
+    assertThat(processInstance).variables() //
+        .doesNotContainKey("startEventExecutionStartListenerExecuted") //
+        .doesNotContainKey("executionStartListenerExecuted") //
+        .doesNotContainKey("executionEndListenerExecuted") //
+        .doesNotContainKey("taskCreateListenerExecuted") //
+        .doesNotContainKey("executionEndListenerOnBoundaryInMultiInstanceExecuted");
+    assertThat(processInstance).variables() //
+        .containsKey("implementationKept") //
+        .containsKey("taskListenerKept") //
+        .containsKey("endListenerKept");
+    
+    complete(task());
+
     assertThat(processInstance).isEnded();
-
-    // check for 4 because of multi-instance stuff
-    // TODO: make the check better
-    assertThat(historyService().createHistoricVariableInstanceQuery().count()).isEqualTo(4);
-
   }
 
 }
