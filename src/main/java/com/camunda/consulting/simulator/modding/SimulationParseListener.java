@@ -37,7 +37,7 @@ public class SimulationParseListener implements BpmnParseListener {
 
   private static final Logger LOG = LoggerFactory.getLogger(SimulationParseListener.class);
   public static final String PROPERTYNAME_SIMULATE_START_EVENT = "simulateStartEvent";
-  public static final String PROPERTYNAME_KEEP_LISTENERS = "simulateStartEvent";
+  public static final String PROPERTYNAME_KEEP_LISTENERS = "simKeepListeners";
 
   public static class NoOpActivityBehavior extends TaskActivityBehavior {
   }
