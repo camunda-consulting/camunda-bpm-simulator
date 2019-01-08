@@ -605,7 +605,9 @@ public class PayloadGenerator {
     final LocalDateTime todayEvening = todayMorning.with(eveningTime);
 
     final long intervalNanos = todayMorning.until(todayEvening, ChronoUnit.NANOS) / times;
-    final long randomizedIntervalNanos = normal(uniqueName, intervalNanos, intervalNanos / 3).longValue();
+    // since intervalNanos depends on morning/evening/times and that could change intentionally,
+    // we have to make sure to use a "new" normal distribution whenever morning/evening/times changes
+    final long randomizedIntervalNanos = normal(uniqueName + Long.toString(intervalNanos), intervalNanos, intervalNanos / 3).longValue();
     
     LocalDateTime nextSample = now.plusNanos(randomizedIntervalNanos);
     if (nextSample.isBefore(todayMorning)) {
