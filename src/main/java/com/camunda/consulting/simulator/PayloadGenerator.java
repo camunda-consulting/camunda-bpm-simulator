@@ -350,6 +350,10 @@ public class PayloadGenerator {
   public Boolean uniformBoolean() {
     return Math.random() < 0.5;
   }
+  
+  public Boolean randBool(double probability) {
+    return uniformBooleanByProbability(probability);
+  }
 
   public Boolean uniformBooleanByProbability(double probability) {
     return Math.random() < probability;
