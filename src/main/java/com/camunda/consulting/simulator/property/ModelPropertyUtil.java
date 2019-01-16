@@ -1,12 +1,6 @@
 package com.camunda.consulting.simulator.property;
 
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
+import java.util.*;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -30,7 +24,9 @@ public class ModelPropertyUtil {
   public static final String CAMUNDA_PROPERTY_SIM_CALL_REAL_IMPLEMENTATION = "simCallRealImplementation";
   public static final String CAMUNDA_PROPERTY_SIM_KEEP_LISTENERS = "simKeepListeners";
   public static final String[] TRUE = {"true", "True", "yes", "Yes"};
-  
+
+  public static Map<BaseElement, Map<String,Work[]>> workByElementAndPropertyCache = new HashMap<>();
+
   public static boolean isTrue(Optional<String> propertyValue) {
     return propertyValue.isPresent() && isTrue(propertyValue.get());
   }
@@ -94,7 +90,13 @@ public class ModelPropertyUtil {
    * Cached read of "simulateSetVariable"-extensions for the given element.
    */
   public static Work[] getPayloadValuesOrdered(BaseElement element, String camundaPropertyName) {
-    Work[] values = PayloadGeneratorListener.generatePayloadPropertyCache.get(element);
+    Work[] values = null;
+    Map<String, Work[]> byProperty = workByElementAndPropertyCache.get(element);
+    if (byProperty == null) {
+      byProperty = new HashMap<>();
+      workByElementAndPropertyCache.put(element,byProperty);
+    }
+    values = byProperty.get(camundaPropertyName);
     if (values == null) {
       String[] expressions = readCamundaPropertyMulti(element, camundaPropertyName).toArray(new String[] {});
       values = new Work[expressions.length];
@@ -121,7 +123,7 @@ public class ModelPropertyUtil {
         Work next = iterator.next();
         values[i++] = next;
       }
-      PayloadGeneratorListener.generatePayloadPropertyCache.put(element, values);
+      byProperty.put(camundaPropertyName, values);
     }
     return values;
   }

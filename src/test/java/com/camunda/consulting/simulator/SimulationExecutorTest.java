@@ -94,9 +94,8 @@ public class SimulationExecutorTest {
     // from none start event
     assertThat(countFirst).isEqualTo(59);
     assertThat(countSecond).isEqualTo(59);
-    
-    // TODO: make that work
-    //assertThat(countFourth).isEqualTo(59);
+    // to test simGeneratePayload on start event
+    assertThat(countFourth).isEqualTo(59);
 
     // from message start event
     assertThat(countThird).isEqualTo(29);
