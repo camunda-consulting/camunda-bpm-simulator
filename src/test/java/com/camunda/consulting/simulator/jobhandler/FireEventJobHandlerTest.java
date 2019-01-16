@@ -5,6 +5,8 @@ import static org.camunda.bpm.engine.test.assertions.ProcessEngineAssertions.ini
 import static org.camunda.bpm.engine.test.assertions.ProcessEngineTests.runtimeService;
 
 import org.apache.ibatis.logging.LogFactory;
+import org.camunda.bpm.BpmPlatform;
+import org.camunda.bpm.container.RuntimeContainerDelegate;
 import org.camunda.bpm.engine.runtime.ProcessInstance;
 import org.camunda.bpm.engine.test.Deployment;
 import org.camunda.bpm.engine.test.ProcessEngineRule;
@@ -29,9 +31,11 @@ public class FireEventJobHandlerTest {
 
   @Before
   public void setup() {
+    if (BpmPlatform.getDefaultProcessEngine() == null) {
+      RuntimeContainerDelegate.INSTANCE.get().registerProcessEngine(rule.getProcessEngine());
+    }
     init(rule.getProcessEngine());
     TestHelper.removeCustomJobs(rule.getProcessEngine());
-    Mocks.register("generator", new PayloadGenerator());
   }
 
   @Deployment(resources = "createEventSubscriptionTestModel.bpmn")

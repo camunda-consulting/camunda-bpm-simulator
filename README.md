@@ -62,6 +62,33 @@ Always stripped away, except the following is set:
 
 * `simGeneratePayload` : `<varname>=<expression giving arbitrary value>`
 
+## Integration into your project
+
+You have to
+
+1. load the simulator engine plugin
+1. (if needed) add your own payload generator
+
+In the example project, this is done in spring-boot by simply registering two beans.
+One holds the plugin itself (and the Camunda spring-boot-starter does some magic to load it on engine bootstrap).
+The second is the payload generator shipped with the plugin.
+Here, you can give your own payload generator bean, for example by inheriting from the shipped one and adding domain based functionality (if it is not domain specific -- please contribute your work to this plugin).
+
+For other containers of the Camunda engine like tomcat, wildfly etc., especially those without DI, you can set your custom payload generator as follows:
+
+```java
+public class MyProject {
+  static {
+    SimulatorPlugin.setPayloadGenerator(new MyShinyPayloadGenerator());
+  }
+}
+````
+
+It is in a static block since you have to make sure it is executed as soon as possible, in particular before any BPMN file is parsed by the engine.
+
+The so provided payload generator can be accessed in expressions with the name ```g```.
+By default, the shipped payload generator is used, so it is always possible to use expressions in properties like ```simGeneratePayload: name=${g.firstname()}```, even if you are in a non-DI setup.
+
 ## TODO
 
 * think about throwing BPMN errors

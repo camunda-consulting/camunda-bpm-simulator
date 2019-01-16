@@ -9,6 +9,8 @@ import java.util.List;
 
 import org.apache.ibatis.logging.LogFactory;
 import org.assertj.core.api.Condition;
+import org.camunda.bpm.BpmPlatform;
+import org.camunda.bpm.container.RuntimeContainerDelegate;
 import org.camunda.bpm.engine.history.HistoricProcessInstance;
 import org.camunda.bpm.engine.history.HistoricVariableInstance;
 import org.camunda.bpm.engine.test.Deployment;
@@ -31,11 +33,13 @@ public class SimulationExecutorTest {
   static {
     LogFactory.useSlf4jLogging(); // MyBatis
     // have it already there when engine is built
-    Mocks.register("generator", new PayloadGenerator());
   }
 
   @Before
   public void setup() {
+    if (BpmPlatform.getDefaultProcessEngine() == null) {
+      RuntimeContainerDelegate.INSTANCE.get().registerProcessEngine(rule.getProcessEngine());
+    }
     init(rule.getProcessEngine());
     TestHelper.removeCustomJobs(rule.getProcessEngine());
   }
@@ -66,6 +70,7 @@ public class SimulationExecutorTest {
     }
     long countFirst = 0;
     long countSecond = 0;
+    long countFourth = 0;
     long countThird = 0;
     List<HistoricVariableInstance> list2 = historyService().createHistoricVariableInstanceQuery().processDefinitionKey("oneStartPerMinute").list();
     for (HistoricVariableInstance historicVariableInstance : list2) {
@@ -77,6 +82,10 @@ public class SimulationExecutorTest {
         countSecond++;
         assertThat(historicVariableInstance.getValue()).isEqualTo("2");
       }
+      if (historicVariableInstance.getName().equals("fourth")) {
+        countFourth++;
+        assertThat(historicVariableInstance.getValue()).isEqualTo("4");
+      }
       if (historicVariableInstance.getName().equals("third")) {
         countThird++;
         assertThat(historicVariableInstance.getValue()).isEqualTo("message");
@@ -85,6 +94,9 @@ public class SimulationExecutorTest {
     // from none start event
     assertThat(countFirst).isEqualTo(59);
     assertThat(countSecond).isEqualTo(59);
+    
+    // TODO: make that work
+    //assertThat(countFourth).isEqualTo(59);
 
     // from message start event
     assertThat(countThird).isEqualTo(29);

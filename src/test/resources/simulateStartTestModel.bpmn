@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:camunda="http://camunda.org/schema/1.0/bpmn" id="Definitions_1" targetNamespace="http://bpmn.io/schema/bpmn" exporter="Camunda Modeler" exporterVersion="2.0.0">
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:camunda="http://camunda.org/schema/1.0/bpmn" id="Definitions_1" targetNamespace="http://bpmn.io/schema/bpmn" exporter="Camunda Modeler" exporterVersion="2.2.1">
   <bpmn:process id="oneStartPerMinute" isExecutable="true">
     <bpmn:endEvent id="EndEventProcessEnded" name="Process&#10;ended">
       <bpmn:incoming>SequenceFlow_04v9yd2</bpmn:incoming>
@@ -8,10 +8,11 @@
     <bpmn:startEvent id="StartEventProcessStarted" name="Process&#10;started" camunda:asyncAfter="true">
       <bpmn:extensionElements>
         <camunda:properties>
-          <camunda:property name="simNextFire" value="${generator.nowPlusMinutes(1)}" />
-          <camunda:property name="simInitBusinessKey" value="none_${generator.uniqueNumber().toString()}" />
+          <camunda:property name="simNextFire" value="${g.nowPlusMinutes(1)}" />
+          <camunda:property name="simInitBusinessKey" value="none_${g.uniqueNumber().toString()}" />
           <camunda:property name="simInitPayload" value="second=2" />
-          <camunda:property name="simInitPayload" value="first=${generator.toInt(1)}" />
+          <camunda:property name="simInitPayload" value="first=${g.toInt(1)}" />
+          <camunda:property name="simGeneratePayload" value="fourth=4" />
         </camunda:properties>
       </bpmn:extensionElements>
       <bpmn:outgoing>SequenceFlow1</bpmn:outgoing>
@@ -19,8 +20,8 @@
     <bpmn:startEvent id="StartEvent_10rhj5x">
       <bpmn:extensionElements>
         <camunda:properties>
-          <camunda:property name="simNextFire" value="${generator.nowPlusMinutes(2)}" />
-          <camunda:property name="simInitBusinessKey" value="message_${generator.uniqueNumber()}" />
+          <camunda:property name="simNextFire" value="${g.nowPlusMinutes(2)}" />
+          <camunda:property name="simInitBusinessKey" value="message_${g.uniqueNumber()}" />
           <camunda:property name="simInitPayload" value="third=message" />
         </camunda:properties>
       </bpmn:extensionElements>
