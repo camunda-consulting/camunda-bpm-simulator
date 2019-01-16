@@ -1,5 +1,7 @@
 package com.camunda.consulting.simulator;
 
+import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
@@ -18,7 +20,6 @@ import org.camunda.bpm.engine.impl.persistence.entity.ProcessDefinitionEntity;
 import org.camunda.bpm.engine.impl.util.ClockUtil;
 import org.camunda.bpm.engine.repository.ProcessDefinition;
 import org.camunda.bpm.engine.runtime.Job;
-import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -45,7 +46,7 @@ public class SimulationExecutor {
 
       ClockUtil.setCurrentTime(start);
       progress = 0;
-      DateTime lastMetricUpdate = null;
+      LocalDateTime lastMetricUpdate = null;
 
       updateStartTimersForCurrentTime(commandExecutor);
 
@@ -68,15 +69,16 @@ public class SimulationExecutor {
           job.map(Job::getId).ifPresent(processEngine.getManagementService()::executeJob);
 
           // write metrics from time to time
-          if (lastMetricUpdate == null || lastMetricUpdate.plusMinutes(METRIC_WRITE_INTERVAL_MINUTES).isBefore(ClockUtil.getCurrentTime().getTime())) {
-            lastMetricUpdate = new DateTime(ClockUtil.getCurrentTime().getTime());
+          final LocalDateTime simulationTime = ClockUtil.getCurrentTime().toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime();
+          if (lastMetricUpdate == null || lastMetricUpdate.plusMinutes(METRIC_WRITE_INTERVAL_MINUTES).isBefore(simulationTime)) {
+            lastMetricUpdate = simulationTime;
             processEngineConfigurationImpl.getDbMetricsReporter().reportNow();
           }
         } while (job.isPresent() && (job.get().getDuedate() == null || !job.get().getDuedate().after(end)));
 
         // get the next job that is due after current time and adjust clock to
         // its due date
-        job = processEngine.getManagementService().createJobQuery().orderByJobDuedate().asc().listPage(0, 1).stream().findFirst();
+        job = processEngine.getManagementService().createJobQuery().active().withRetriesLeft().orderByJobDuedate().asc().listPage(0, 1).stream().findFirst();
         job.map(Job::getDuedate).ifPresent(ClockUtil::setCurrentTime);
         progress = Math.min(1, (ClockUtil.getCurrentTime().getTime() - start.getTime()) / (double) (end.getTime() - start.getTime()));
 
@@ -139,7 +141,7 @@ public class SimulationExecutor {
           ProcessDefinitionEntity definition = commandContext.getProcessEngineConfiguration().getDeploymentCache()
               .findDeployedLatestProcessDefinitionByKey(key);
 
-          SimulatorPlugin.getBpmnDeployer().adjustStartEventSubscriptions(definition, definition);
+          SimulatorPlugin.getSimulationBpmnDeployer().adjustStartEventSubscriptions(definition, definition);
 
         });
         return null;
