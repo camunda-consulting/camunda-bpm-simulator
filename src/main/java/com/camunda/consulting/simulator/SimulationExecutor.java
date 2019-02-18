@@ -35,6 +35,12 @@ public class SimulationExecutor {
     return progress;
   }
 
+  private static boolean simulationStopped = false;
+
+  public static void stopSimulation(){
+    simulationStopped = true;
+  }
+
   public static void execute(Date start, Date end) {
 
     ProcessEngineConfigurationImpl processEngineConfigurationImpl = SimulatorPlugin.getProcessEngineConfiguration();
@@ -50,38 +56,38 @@ public class SimulationExecutor {
       updateStartTimersForCurrentTime(commandExecutor);
 
       Optional<Job> job;
-      do {
-        // execute all jobs that are due before current time
         do {
-          // work around engine "bug"
-          makeTimeGoBy();
+          // execute all jobs that are due before current time
+          do {
+            // work around engine "bug"
+            makeTimeGoBy();
 
-          // by setting the processEngineConfigurationImpl.setJobExecutor*
-          // properties we can be sure to get the next job with minimum due date
-          List<JobEntity> jobs = commandExecutor.execute(new Command<List<JobEntity>>() {
-            @Override
-            public List<JobEntity> execute(CommandContext commandContext) {
-              return commandContext.getJobManager().findNextJobsToExecute(new Page(0, 1));
+            // by setting the processEngineConfigurationImpl.setJobExecutor*
+            // properties we can be sure to get the next job with minimum due date
+            List<JobEntity> jobs = commandExecutor.execute(new Command<List<JobEntity>>() {
+              @Override
+              public List<JobEntity> execute(CommandContext commandContext) {
+                return commandContext.getJobManager().findNextJobsToExecute(new Page(0, 1));
+              }
+            });
+            job = jobs.stream().map(jobEntity -> (Job) jobEntity).findFirst();
+            job.map(Job::getId).ifPresent(processEngine.getManagementService()::executeJob);
+
+            // write metrics from time to time
+            if (lastMetricUpdate == null || lastMetricUpdate.plusMinutes(METRIC_WRITE_INTERVAL_MINUTES).isBefore(ClockUtil.getCurrentTime().getTime())) {
+              lastMetricUpdate = new DateTime(ClockUtil.getCurrentTime().getTime());
+              processEngineConfigurationImpl.getDbMetricsReporter().reportNow();
             }
-          });
-          job = jobs.stream().map(jobEntity -> (Job) jobEntity).findFirst();
-          job.map(Job::getId).ifPresent(processEngine.getManagementService()::executeJob);
+          } while (!simulationStopped && job.isPresent() && (job.get().getDuedate() == null || !job.get().getDuedate().after(end)));
 
-          // write metrics from time to time
-          if (lastMetricUpdate == null || lastMetricUpdate.plusMinutes(METRIC_WRITE_INTERVAL_MINUTES).isBefore(ClockUtil.getCurrentTime().getTime())) {
-            lastMetricUpdate = new DateTime(ClockUtil.getCurrentTime().getTime());
-            processEngineConfigurationImpl.getDbMetricsReporter().reportNow();
-          }
-        } while (job.isPresent() && (job.get().getDuedate() == null || !job.get().getDuedate().after(end)));
+          // get the next job that is due after current time and adjust clock to
+          // its due date
+          job = processEngine.getManagementService().createJobQuery().orderByJobDuedate().asc().listPage(0, 1).stream().findFirst();
+          job.map(Job::getDuedate).ifPresent(ClockUtil::setCurrentTime);
+          progress = Math.min(1, (ClockUtil.getCurrentTime().getTime() - start.getTime()) / (double) (end.getTime() - start.getTime()));
 
-        // get the next job that is due after current time and adjust clock to
-        // its due date
-        job = processEngine.getManagementService().createJobQuery().orderByJobDuedate().asc().listPage(0, 1).stream().findFirst();
-        job.map(Job::getDuedate).ifPresent(ClockUtil::setCurrentTime);
-        progress = Math.min(1, (ClockUtil.getCurrentTime().getTime() - start.getTime()) / (double) (end.getTime() - start.getTime()));
-
-        LOG.debug("Advance simulation time to: " + ClockUtil.getCurrentTime());
-      } while (job.isPresent() && (job.get().getDuedate() == null || !job.get().getDuedate().after(end)));
+          LOG.debug("Advance simulation time to: " + ClockUtil.getCurrentTime());
+        } while ( !simulationStopped && job.isPresent() && (job.get().getDuedate() == null || !job.get().getDuedate().after(end)));
     });
   }
 
@@ -112,6 +118,7 @@ public class SimulationExecutor {
     } finally {
       ClockUtil.reset();
       progress = 1;
+      simulationStopped = false;
       
       updateStartTimersForCurrentTime(commandExecutor);
 
@@ -165,4 +172,6 @@ public class SimulationExecutor {
     cal.add(Calendar.MILLISECOND, 1);
     ClockUtil.setCurrentTime(cal.getTime());
   }
+
+
 }
