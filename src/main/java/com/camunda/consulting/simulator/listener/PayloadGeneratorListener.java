@@ -16,7 +16,6 @@ public class PayloadGeneratorListener extends AbstractTimerJobCreator implements
   public static final Logger LOG = LoggerFactory.getLogger(PayloadGeneratorListener.class);
 
   private static PayloadGeneratorListener INSTANCE = null;
-  public static Map<BaseElement, Work[]> generatePayloadPropertyCache = new HashMap<>();
 
   public static PayloadGeneratorListener instance() {
     if (INSTANCE == null) {

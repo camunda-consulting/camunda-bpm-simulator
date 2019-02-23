@@ -350,7 +350,7 @@ public class PayloadGenerator {
   public Boolean uniformBoolean() {
     return Math.random() < 0.5;
   }
-  
+
   public Boolean randBool(double probability) {
     return uniformBooleanByProbability(probability);
   }
@@ -605,13 +605,15 @@ public class PayloadGenerator {
     final LocalDateTime todayEvening = todayMorning.with(eveningTime);
 
     final long intervalNanos = todayMorning.until(todayEvening, ChronoUnit.NANOS) / times;
-    // since intervalNanos depends on morning/evening/times and that could change intentionally,
-    // we have to make sure to use a "new" normal distribution whenever morning/evening/times changes
+    // since intervalNanos depends on morning/evening/times and that could
+    // change intentionally,
+    // we have to make sure to use a "new" normal distribution whenever
+    // morning/evening/times changes
     final long randomizedIntervalNanos = normal(uniqueName + Long.toString(intervalNanos), intervalNanos, intervalNanos / 3).longValue();
-    
+
     LocalDateTime nextSample = now.plusNanos(randomizedIntervalNanos);
     if (nextSample.isBefore(todayMorning)) {
-      nextSample = todayMorning.plusNanos(randomizedIntervalNanos/2);
+      nextSample = todayMorning.plusNanos(randomizedIntervalNanos / 2);
     }
     if (nextSample.isAfter(todayEvening)) {
       final LocalDateTime tomorrowMorning = todayMorning.plusDays(1);
@@ -633,8 +635,8 @@ public class PayloadGenerator {
 
   /**
    * Returns an integer that linearly increases from start to end of a history
-   * simulation between min and max. If no history simulation is running, always
-   * max is returned.
+   * simulation between min and max. If no history simulation is running, max is
+   * returned.
    * 
    * @param min
    * @param max
@@ -642,5 +644,41 @@ public class PayloadGenerator {
    */
   public Integer linearBySimulationTime(int min, int max) {
     return min + (int) (SimulationExecutor.getProgress() * (max - min));
+  }
+
+  /**
+   * Returns an integer that linearly increases in the simulation time interval
+   * between startPercentage and endPercentage of a history simulation between
+   * min and max. If simulation time not reached startPercentage, min is
+   * returned. If simulation time is beyound endPercentage or no simulation is
+   * running, max is returned.
+   * 
+   * If no history simulation is running, always max is returned.
+   * 
+   * @param min
+   * @param max
+   * @return
+   */
+  public Integer linearBySimulationTimeInInterval(int min, int max, double startPercentage, double endPercentage) {
+    if (SimulationExecutor.getProgress() < startPercentage) {
+      return min;
+    }
+    if (SimulationExecutor.getProgress() > endPercentage) {
+      return max;
+    }
+    return min + (int) ((SimulationExecutor.getProgress() - startPercentage) * (endPercentage - startPercentage)) * (max - min);
+  }
+
+  /**
+   * Returns an integer that exponentially increases from start to end of a
+   * history simulation between min and max. If no history simulation is
+   * running, max is returned.
+   * 
+   * @return
+   */
+  public Integer exponentialBySimulationTime(int min, int max, double exponent) {
+    final int result = min + (int) (Math.pow(SimulationExecutor.getProgress(), exponent) * (max - min));
+    LOG.warn("Exp Generated value: " + result);
+    return result;
   }
 }

@@ -13,7 +13,7 @@
     <bpmn:intermediateCatchEvent id="IntermediateCatchEvent_161jsch" name="M">
       <bpmn:extensionElements>
         <camunda:properties>
-          <camunda:property name="simNextFire" value="${generator.nowPlusMinutes(1)}" />
+          <camunda:property name="simNextFire" value="${g.nowPlusMinutes(1)}" />
         </camunda:properties>
       </bpmn:extensionElements>
       <bpmn:incoming>SequenceFlow_19dylc6</bpmn:incoming>
@@ -24,7 +24,7 @@
     <bpmn:intermediateCatchEvent id="IntermediateCatchEvent_1yysmwa" name="S">
       <bpmn:extensionElements>
         <camunda:properties>
-          <camunda:property name="simNextFire" value="${generator.nowPlusMinutes(2)}" />
+          <camunda:property name="simNextFire" value="${g.nowPlusMinutes(2)}" />
         </camunda:properties>
       </bpmn:extensionElements>
       <bpmn:incoming>SequenceFlow_00vlref</bpmn:incoming>

@@ -12,7 +12,7 @@
     <bpmn:userTask id="UT" name="Wait here">
       <bpmn:extensionElements>
         <camunda:properties>
-          <camunda:property name="simNextFire" value="${generator.nowPlusMinutes(20)}" />
+          <camunda:property name="simNextFire" value="${g.nowPlusMinutes(20)}" />
         </camunda:properties>
       </bpmn:extensionElements>
       <bpmn:incoming>SequenceFlow_1xjomvn</bpmn:incoming>
@@ -22,7 +22,7 @@
       <bpmn:startEvent id="Message_Start" isInterrupting="false">
         <bpmn:extensionElements>
           <camunda:properties>
-            <camunda:property name="simNextFire" value="${generator.nowPlusMinutes(2)}" />
+            <camunda:property name="simNextFire" value="${g.nowPlusMinutes(2)}" />
           </camunda:properties>
         </bpmn:extensionElements>
         <bpmn:outgoing>SequenceFlow_0v6xqp9</bpmn:outgoing>
@@ -41,7 +41,7 @@
       <bpmn:startEvent id="Signal_Start">
         <bpmn:extensionElements>
           <camunda:properties>
-            <camunda:property name="simNextFire" value="${generator.nowPlusMinutes(5)}" />
+            <camunda:property name="simNextFire" value="${g.nowPlusMinutes(5)}" />
           </camunda:properties>
         </bpmn:extensionElements>
         <bpmn:outgoing>SequenceFlow_0uy9k8a</bpmn:outgoing>

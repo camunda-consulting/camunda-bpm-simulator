@@ -12,7 +12,7 @@
     <bpmn:serviceTask id="externalTask" name="External Task" camunda:type="external" camunda:topic="foo">
       <bpmn:extensionElements>
         <camunda:properties>
-          <camunda:property name="simNextFire" value="${generator.now()}" />
+          <camunda:property name="simNextFire" value="${g.now()}" />
         </camunda:properties>
       </bpmn:extensionElements>
       <bpmn:incoming>SequenceFlow_1lc546f</bpmn:incoming>

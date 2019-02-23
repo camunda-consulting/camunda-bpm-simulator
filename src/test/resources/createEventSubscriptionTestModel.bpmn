@@ -13,7 +13,7 @@
     <bpmn:boundaryEvent id="BoundaryEvent_1edvqqe" name="M" cancelActivity="false" attachedToRef="UT">
       <bpmn:extensionElements>
         <camunda:properties>
-          <camunda:property name="simNextFire" value="${generator.nowPlusMinutes(1)}" />
+          <camunda:property name="simNextFire" value="${g.nowPlusMinutes(1)}" />
         </camunda:properties>
       </bpmn:extensionElements>
       <bpmn:outgoing>SequenceFlow_09nqc1v</bpmn:outgoing>
@@ -22,7 +22,7 @@
     <bpmn:boundaryEvent id="BoundaryEvent_0h74wxe" name="S" cancelActivity="false" attachedToRef="UT">
       <bpmn:extensionElements>
         <camunda:properties>
-          <camunda:property name="simNextFire" value="${generator.nowPlusMinutes(2)}" />
+          <camunda:property name="simNextFire" value="${g.nowPlusMinutes(2)}" />
         </camunda:properties>
       </bpmn:extensionElements>
       <bpmn:outgoing>SequenceFlow_12ij0hh</bpmn:outgoing>

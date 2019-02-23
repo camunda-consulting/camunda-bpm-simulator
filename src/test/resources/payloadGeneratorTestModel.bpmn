@@ -12,8 +12,8 @@
     <bpmn:serviceTask id="ST" name="ST" camunda:asyncAfter="true" camunda:expression="${failingBean}">
       <bpmn:extensionElements>
         <camunda:properties>
-          <camunda:property name="simGeneratePayload" value="firstVar=${generator.toInt(secondVar + 5)}" />
-          <camunda:property name="simGeneratePayload" value="secondVar=${generator.uniformInt(2,8)}" />
+          <camunda:property name="simGeneratePayload" value="firstVar=${g.toInt(secondVar + 5)}" />
+          <camunda:property name="simGeneratePayload" value="secondVar=${g.uniformInt(2,8)}" />
         </camunda:properties>
       </bpmn:extensionElements>
       <bpmn:incoming>SequenceFlow1</bpmn:incoming>

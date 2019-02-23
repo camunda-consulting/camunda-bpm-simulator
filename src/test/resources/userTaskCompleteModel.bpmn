@@ -12,7 +12,7 @@
     <bpmn:userTask id="Task_2" name="Create Job">
       <bpmn:extensionElements>
         <camunda:properties>
-          <camunda:property name="simNextFire" value="${generator.now()}" />
+          <camunda:property name="simNextFire" value="${g.now()}" />
         </camunda:properties>
       </bpmn:extensionElements>
       <bpmn:incoming>SequenceFlow_09qfj04</bpmn:incoming>
