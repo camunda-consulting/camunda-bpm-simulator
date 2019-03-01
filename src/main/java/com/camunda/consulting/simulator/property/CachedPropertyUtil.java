@@ -36,9 +36,9 @@ public class CachedPropertyUtil {
 	if (expression == null) {
 	    ModelElementInstance modelElementInstance = execution.getBpmnModelInstance()
 		    .getModelElementById(activityId);
-	    Optional<String> nextFire = ModelPropertyUtil.readCamundaProperty((BaseElement) modelElementInstance,
+	    Optional<String> modelProperty = ModelPropertyUtil.readCamundaProperty((BaseElement) modelElementInstance,
 		    property);
-	    expression = nextFire
+	    expression = modelProperty
 		    .map(SimulatorPlugin.getProcessEngineConfiguration().getExpressionManager()::createExpression);
 	    activityIdToExpression.put(activityId, expression);
 	    LOG.debug("Return new expression");
