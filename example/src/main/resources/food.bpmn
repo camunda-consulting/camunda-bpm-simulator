@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:camunda="http://camunda.org/schema/1.0/bpmn" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" id="Definitions_1lsmffg" targetNamespace="http://bpmn.io/schema/bpmn" exporter="Camunda Modeler" exporterVersion="2.0.0">
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:camunda="http://camunda.org/schema/1.0/bpmn" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" id="Definitions_1lsmffg" targetNamespace="http://bpmn.io/schema/bpmn" exporter="Camunda Modeler" exporterVersion="3.0.0-beta.2">
   <bpmn:process id="food" name="Make Food" isExecutable="true">
     <bpmn:sequenceFlow id="SequenceFlow_0bii9d0" sourceRef="StartEvent_1" targetRef="Task_0866ekg" />
     <bpmn:endEvent id="IntermediateThrowEvent_0p60d29" name="Food served">
@@ -10,7 +10,7 @@
     <bpmn:userTask id="Task_0866ekg" name="Prepare food">
       <bpmn:extensionElements>
         <camunda:properties>
-          <camunda:property name="simNextFire" value="${generator.nowPlusMinutes(generator.uniformInt(30,60))}" />
+          <camunda:property name="simNextComplete" value="${generator.nowPlusMinutes(generator.uniformInt(30,60))}" />
         </camunda:properties>
       </bpmn:extensionElements>
       <bpmn:incoming>SequenceFlow_0bii9d0</bpmn:incoming>
@@ -20,7 +20,7 @@
     <bpmn:userTask id="Task_0cshm9w" name="Serve food">
       <bpmn:extensionElements>
         <camunda:properties>
-          <camunda:property name="simNextFire" value="${generator.nowPlusMinutes(generator.normal(&#34;serve&#34;,10,5))}" />
+          <camunda:property name="simNextComplete" value="${generator.nowPlusMinutes(generator.normal(&#34;serve&#34;,10,5))}" />
         </camunda:properties>
       </bpmn:extensionElements>
       <bpmn:incoming>SequenceFlow_0l5o2zk</bpmn:incoming>

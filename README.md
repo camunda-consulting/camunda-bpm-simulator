@@ -32,9 +32,13 @@ Note for signals: The signal is not delivered globally but only to the execution
 
 ### User Task
 
-* `simNextFire` : `<expression giving date>`
+* `simNextComplete` : `<expression giving date>`
+* `simNextClaim` : `<expression giving date>`
+* `simClaimUser` : `<expression giving string>`
 
-TODO: Also simulate assignee, candidates, claiming...
+Note: Please make sure that you specify a Claim User if you specify next claim time (simNextClaim and simClaimUser always together).
+
+TODO: Also simulate multi claim, candidates...
 
 ### Service Task (Send Task, Business Rule Task, Script Task)
 
