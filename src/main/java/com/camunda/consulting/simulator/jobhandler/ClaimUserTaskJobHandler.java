@@ -23,7 +23,10 @@ public class ClaimUserTaskJobHandler implements JobHandler<ClaimUserTaskJobHandl
     String userId = configuration.getUserId();
     // eventually we created a claim job, but before it gets executed the usertask is completed
     if (execution.getProcessEngineServices().getTaskService().createTaskQuery().taskId(taskId).list().size() > 0) {
-	execution.getProcessEngineServices().getTaskService().claim(taskId, userId);	
+	// manually authenticate the user so a user operations log is written
+	execution.getProcessEngineServices().getIdentityService().setAuthenticatedUserId(userId);
+	execution.getProcessEngineServices().getTaskService().claim(taskId, userId);
+	execution.getProcessEngineServices().getIdentityService().clearAuthentication();
     }
   }
 

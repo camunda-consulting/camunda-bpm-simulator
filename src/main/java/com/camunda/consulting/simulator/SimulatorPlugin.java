@@ -74,9 +74,6 @@ public class SimulatorPlugin implements ProcessEnginePlugin {
 
   @Override
   public void preInit(ProcessEngineConfigurationImpl processEngineConfiguration) {
-    // we always want to get the user operation log, because we do not want to authorize users all the time
-    processEngineConfiguration.setRestrictUserOperationLogToAuthenticatedUsers(false);
-
     List<BpmnParseListener> parseListeners = processEngineConfiguration.getCustomPreBPMNParseListeners();
     if (parseListeners == null) {
       parseListeners = new ArrayList<>();
