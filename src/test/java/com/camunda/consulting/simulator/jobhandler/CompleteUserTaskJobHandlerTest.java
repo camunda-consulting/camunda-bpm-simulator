@@ -22,7 +22,7 @@ import com.camunda.consulting.simulator.PayloadGenerator;
 import com.camunda.consulting.simulator.SimulationExecutor;
 import com.camunda.consulting.simulator.TestHelper;
 
-@Deployment(resources = "userTaskCompleteModel.bpmn")
+@Deployment(resources = {"userTaskCompleteModel.bpmn", "userTaskCompleteModelLegacy.bpmn"})
 public class CompleteUserTaskJobHandlerTest {
 
   @Rule
@@ -45,6 +45,20 @@ public class CompleteUserTaskJobHandlerTest {
   public void shouldExecuteCompleteTaskJob() {
 
     ProcessInstance processInstance = runtimeService().startProcessInstanceByKey("userTaskComplete");
+    assertThat(processInstance).isStarted().isWaitingAt("Task_1");
+    complete(task());
+    assertThat(processInstance).isWaitingAt("Task_2");
+
+    SimulationExecutor.execute(DateTime.now().minusMinutes(5).toDate(), DateTime.now().plusMinutes(5).toDate());
+
+    assertThat(processInstance).isEnded();
+
+  }
+  
+  @Test
+  public void shouldExecuteCompleteLegacyTaskJob() {
+
+    ProcessInstance processInstance = runtimeService().startProcessInstanceByKey("userTaskCompleteLegacy");
     assertThat(processInstance).isStarted().isWaitingAt("Task_1");
     complete(task());
     assertThat(processInstance).isWaitingAt("Task_2");
