@@ -18,6 +18,9 @@ import com.camunda.consulting.simulator.listener.PayloadGeneratorListener;
 public class ModelPropertyUtil {
 
   public static final String CAMUNDA_PROPERTY_SIM_NEXT_FIRE = "simNextFire";
+  public static final String CAMUNDA_PROPERTY_SIM_NEXT_COMPLETE = "simNextComplete";
+  public static final String CAMUNDA_PROPERTY_SIM_NEXT_CLAIM = "simNextClaim";
+  public static final String CAMUNDA_PROPERTY_SIM_CLAIM_USER = "simClaimUser";
   public static final String CAMUNDA_PROPERTY_SIM_GENERATE_PAYLOAD = "simGeneratePayload";
   public static final String CAMUNDA_PROPERTY_SIM_INIT_PAYLOAD = "simInitPayload";
   public static final String CAMUNDA_PROPERTY_SIM_INIT_BUSINESS_KEY = "simInitBusinessKey";
@@ -41,6 +44,18 @@ public class ModelPropertyUtil {
 
   public static Optional<String> getNextFire(Element xmlElement) {
     return readCamundaProperty(xmlElement, CAMUNDA_PROPERTY_SIM_NEXT_FIRE);
+  }
+  
+  public static Optional<String> getNextComplete(ModelElementInstance elementInstance) {
+      return readCamundaProperty((BaseElement) elementInstance, CAMUNDA_PROPERTY_SIM_NEXT_COMPLETE);
+  }
+  
+  public static Optional<String> getNextClaim(ModelElementInstance elementInstance) {
+      return readCamundaProperty((BaseElement) elementInstance, CAMUNDA_PROPERTY_SIM_NEXT_CLAIM);
+  }
+  
+  public static Optional<String> getClaimUser(ModelElementInstance elementInstance) {
+      return readCamundaProperty((BaseElement) elementInstance, CAMUNDA_PROPERTY_SIM_CLAIM_USER);
   }
 
   public static Optional<String> readCamundaProperty(Element xmlElement, String propertyName) {

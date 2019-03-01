@@ -29,6 +29,7 @@ import org.slf4j.LoggerFactory;
 
 import com.camunda.consulting.simulator.listener.ExternalTaskJobCreateListener;
 import com.camunda.consulting.simulator.listener.PayloadGeneratorListener;
+import com.camunda.consulting.simulator.listener.UserTaskClaimJobCreateListener;
 import com.camunda.consulting.simulator.listener.UserTaskCompleteJobCreateListener;
 import com.camunda.consulting.simulator.property.ModelPropertyUtil;
 
@@ -148,7 +149,7 @@ public class SimulationParseListener implements BpmnParseListener {
     }
 
     addUserTaskCompleteJobCreatingListener(activity);
-
+    addUserTaskClaimJobCreatingListener(activity);
   }
 
   @Override
@@ -302,6 +303,13 @@ public class SimulationParseListener implements BpmnParseListener {
         UserTaskCompleteJobCreateListener.instance());
 
   }
+  
+  private void addUserTaskClaimJobCreatingListener(ActivityImpl activity) {
+
+      ((UserTaskActivityBehavior) activity.getActivityBehavior()).getTaskDefinition().addTaskListener(TaskListener.EVENTNAME_CREATE,
+          UserTaskClaimJobCreateListener.instance());
+
+    }
 
   private void replaceBehaviourByNoOp(Element element, ActivityImpl activity) {
     // we only replace the behavior if simCallRealImplementation is not

@@ -23,6 +23,7 @@ import org.camunda.bpm.engine.impl.jobexecutor.JobHandler;
 import org.camunda.bpm.engine.impl.persistence.deploy.Deployer;
 
 import com.camunda.consulting.simulator.commandinterceptor.CreateFireEventJobCommandInterceptor;
+import com.camunda.consulting.simulator.jobhandler.ClaimUserTaskJobHandler;
 import com.camunda.consulting.simulator.jobhandler.CompleteExternalTaskJobHandler;
 import com.camunda.consulting.simulator.jobhandler.CompleteUserTaskJobHandler;
 import com.camunda.consulting.simulator.jobhandler.FireEventJobHandler;
@@ -73,6 +74,9 @@ public class SimulatorPlugin implements ProcessEnginePlugin {
 
   @Override
   public void preInit(ProcessEngineConfigurationImpl processEngineConfiguration) {
+    // we always want to get the user operation log, because we do not want to authorize users all the time
+    processEngineConfiguration.setRestrictUserOperationLogToAuthenticatedUsers(false);
+
     List<BpmnParseListener> parseListeners = processEngineConfiguration.getCustomPreBPMNParseListeners();
     if (parseListeners == null) {
       parseListeners = new ArrayList<>();
@@ -87,6 +91,7 @@ public class SimulatorPlugin implements ProcessEnginePlugin {
       processEngineConfiguration.setCustomJobHandlers(customJobHandlers);
     }
     customJobHandlers.add(new CompleteUserTaskJobHandler());
+    customJobHandlers.add(new ClaimUserTaskJobHandler());
     customJobHandlers.add(new FireEventJobHandler());
     customJobHandlers.add(new CompleteExternalTaskJobHandler());
     customJobHandlers.add(new StartProcessInstanceJobHandler());

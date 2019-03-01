@@ -24,11 +24,52 @@ public class AbstractTimerJobCreator {
 
   // process definition id -> activity id -> maybe expression
   private Map<String, Map<String, Optional<Expression>>> nextFireExpressionCache = new HashMap<>();
-
+  private Map<String, Map<String, Optional<Expression>>> nextCompleteExpressionCache = new HashMap<>();
+  private Map<String, Map<String, Optional<Expression>>> nextClaimExpressionCache = new HashMap<>();
+  private Map<String, Map<String, Optional<Expression>>> claimUserExpressionCache = new HashMap<>();
+  
   public AbstractTimerJobCreator() {
     super();
   }
 
+  protected Optional<Expression> getCachedNextCompleteExpression(DelegateExecution execution, String activityId) {
+      Map<String, Optional<Expression>> activityIdToExpression = nextCompleteExpressionCache.get(execution.getProcessDefinitionId());
+      if (activityIdToExpression == null) {
+        activityIdToExpression = new HashMap<>();
+        nextCompleteExpressionCache.put(execution.getProcessDefinitionId(), activityIdToExpression);
+      }
+      Optional<Expression> nextCompleteExpression = activityIdToExpression.get(activityId);
+      if (nextCompleteExpression == null) {
+        ModelElementInstance modelElementInstance = execution.getBpmnModelInstance().getModelElementById(activityId);
+        Optional<String> nextFire = ModelPropertyUtil.getNextComplete(modelElementInstance);
+        nextCompleteExpression = nextFire.map(SimulatorPlugin.getProcessEngineConfiguration().getExpressionManager()::createExpression);
+        activityIdToExpression.put(activityId, nextCompleteExpression);
+        LOG.debug("Return new expression");
+      } else {
+        LOG.debug("Return cached expression");
+      }
+      return nextCompleteExpression;
+    }
+  
+  protected Optional<Expression> getCachedNextClaimExpression(DelegateExecution execution, String activityId) {
+      Map<String, Optional<Expression>> activityIdToExpression = nextClaimExpressionCache.get(execution.getProcessDefinitionId());
+      if (activityIdToExpression == null) {
+        activityIdToExpression = new HashMap<>();
+        nextClaimExpressionCache.put(execution.getProcessDefinitionId(), activityIdToExpression);
+      }
+      Optional<Expression> nextClaimExpression = activityIdToExpression.get(activityId);
+      if (nextClaimExpression == null) {
+        ModelElementInstance modelElementInstance = execution.getBpmnModelInstance().getModelElementById(activityId);
+        Optional<String> nextClaim = ModelPropertyUtil.getNextClaim(modelElementInstance);
+        nextClaimExpression = nextClaim.map(SimulatorPlugin.getProcessEngineConfiguration().getExpressionManager()::createExpression);
+        activityIdToExpression.put(activityId, nextClaimExpression);
+        LOG.debug("Return new expression");
+      } else {
+        LOG.debug("Return cached expression");
+      }
+      return nextClaimExpression;
+    }
+  
   protected Optional<Expression> getCachedNextFireExpression(DelegateExecution execution, String activityId) {
     Map<String, Optional<Expression>> activityIdToExpression = nextFireExpressionCache.get(execution.getProcessDefinitionId());
     if (activityIdToExpression == null) {
@@ -47,6 +88,26 @@ public class AbstractTimerJobCreator {
     }
     return nextFireExpression;
   }
+  
+  protected Optional<Expression> getCachedClaimUserExpression(DelegateExecution execution, String activityId) {
+      Map<String, Optional<Expression>> activityIdToExpression = claimUserExpressionCache.get(execution.getProcessDefinitionId());
+      if (activityIdToExpression == null) {
+        activityIdToExpression = new HashMap<>();
+        claimUserExpressionCache.put(execution.getProcessDefinitionId(), activityIdToExpression);
+      }
+      Optional<Expression> claimUserExpression = activityIdToExpression.get(activityId);
+      if (claimUserExpression == null) {
+        ModelElementInstance modelElementInstance = execution.getBpmnModelInstance().getModelElementById(activityId);
+        Optional<String> claimUser = ModelPropertyUtil.getClaimUser(modelElementInstance);
+        claimUserExpression = claimUser.map(SimulatorPlugin.getProcessEngineConfiguration().getExpressionManager()::createExpression);
+        activityIdToExpression.put(activityId, claimUserExpression);
+        LOG.debug("Return new expression");
+      } else {
+        LOG.debug("Return cached expression");
+      }
+      return claimUserExpression;
+    }
+  
 
   protected void createTimerJob(ExecutionEntity execution, String jobHandlertype, Date duedate, JobHandlerConfiguration jobHandlerConfiguration) {
     TimerEntity timer = new TimerEntity();
