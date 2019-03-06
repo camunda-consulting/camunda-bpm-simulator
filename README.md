@@ -129,21 +129,21 @@ By default, the shipped payload generator is used, so it is always possible to u
 
 - Next, add extensions to various nodes in your process. You'll need extensions on start nodes, human tasks, and some service tasks. In the **Extensions** tab add a property called **simNextFire** with a value of  **${g.timesPerDay("a_unique_name","start_time_in_24_hour_format","end_time_in_24_hour_format", number_of_times_you_want_to_fire_in_that_duration)}**. See below. The 'g' object is understood by the plugin to be the simulator generator object.
 
-  ![](C:\Users\19177\Pictures\startSim.PNG)
+  ![](images/startSim.PNG)
 
   
 
 - Add **simNextFire** extensions to human tasks. Service tasks, business rules tasks, send tasks, and script tasks run as no ops during simulation. A sample value for a human could be **${g.nowPlusMinutes(g.uniformInt(minimum_minute_duration, maximum_minute duration))}**. This will produce a uniform distribution of duration values from the minimum to the maximum. You can also use milliseconds, seconds, hours, days, weeks, months, or years.
 
-  ![](C:\Users\19177\Pictures\htSimFire.PNG)
+  ![](images/htSimFire.PNG)
 
 - You can add a wide range of data to the process using **simGeneratePayload** property. In this example we'd like the simulator to select between three values - "yes", "no", or "maybe". It then assigns the value to the "approved" variable which is needed for the gateway to work.
 
-  ![](C:\Users\19177\Pictures\dataSim.png)
+  ![](images/dataSim.png)
 
 - Now when you start the application the simulator will generate process instance and task instance data to make Cockpit and Optimize reports more interesting to view without having to run process instances manually. Be sure to have a look at the **PayloadGenerator** and **SimulationExecutor** classes for additional methods to use. 
 
-![1551830196853](C:\Users\19177\AppData\Roaming\Typora\typora-user-images\1551830196853.png)
+![1551830196853](images/heatmap.png)
 
 
 ## TODO
