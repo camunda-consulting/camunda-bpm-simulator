@@ -143,7 +143,7 @@ By default, the shipped payload generator is used, so it is always possible to u
 
 - Now when you start the application the simulator will generate process instance and task instance data to make Cockpit and Optimize reports more interesting to view without having to run process instances manually. Be sure to have a look at the **PayloadGenerator** and **SimulationExecutor** classes for additional methods to use. 
 
-![1551830196853](images/heatmap.png)
+![1551830196853](images/heatMap.png)
 
 
 ## TODO
