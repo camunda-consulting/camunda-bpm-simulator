@@ -127,7 +127,7 @@ By default, the shipped payload generator is used, so it is always possible to u
   import com.camunda.consulting.simulator.SimulatorPlugin;
   ```
 
-- Next, add extensions to various nodes in your process. You'll need extensions on start nodes, human tasks, and some service tasks. In the **Extensions** tab add a property called **simNextFire** with a value of  **${g.timesPerDay("a_unique_name","start_time_in_24_hour_format","end_time_in_24_hour_format", number_of_times_you_want_to_fire_in_that_duration)}**. See below. The 'g' object is understood by the plugin to be the simulator generator object.
+- Next, add extensions to various nodes in your process. You'll need extensions on start nodes, human tasks, and some service tasks. In the **Extensions** tab add a property called **simNextFire** with a value of  **${g.timesPerDay("a_unique_name","start_time_in_24_hour_format","end_time_in_24_hour_format", number_of_times_you_want_to_fire_in_that_duration)}**. See below. The 'g' object is understood by the plugin to be the simulator generator object. **Note**: For a wider range of starts per day you may want to replace the static number in the example below **(88)** with a function like **g.uniformLong(0, 200)**
 
   ![](images/startSim.PNG)
 
