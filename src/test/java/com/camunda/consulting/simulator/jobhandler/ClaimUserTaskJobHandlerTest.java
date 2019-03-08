@@ -43,7 +43,7 @@ public class ClaimUserTaskJobHandlerTest {
   @Before
   public void setup() {
     if (BpmPlatform.getDefaultProcessEngine() == null) {
-	RuntimeContainerDelegate.INSTANCE.get().registerProcessEngine(rule.getProcessEngine());
+      RuntimeContainerDelegate.INSTANCE.get().registerProcessEngine(rule.getProcessEngine());
     }
     init(rule.getProcessEngine());
     TestHelper.removeCustomJobs(rule.getProcessEngine());
@@ -59,11 +59,11 @@ public class ClaimUserTaskJobHandlerTest {
     assertThat(processInstance).isWaitingAt("Task_2");
 
     SimulationExecutor.execute(DateTime.now().minusMinutes(5).toDate(), DateTime.now().plusMinutes(5).toDate());
-    
+
     List<Task> tasks = taskService().createTaskQuery().taskAssignee("felix").list();
     assertEquals(tasks.size(), 1);
   }
-  
+
   @Test
   public void shouldExecuteClaimAndCompleteTaskJob() {
     ProcessInstance processInstance = runtimeService().startProcessInstanceByKey("userTaskClaimComplete");
@@ -71,13 +71,13 @@ public class ClaimUserTaskJobHandlerTest {
     complete(task());
     assertThat(processInstance).isWaitingAt("Task_2");
     complete(task());
-    
+
     SimulationExecutor.execute(DateTime.now().minusMinutes(5).toDate(), DateTime.now().plusMinutes(5).toDate());
 
     assertThat(processInstance).isEnded();
-    
+
     List<UserOperationLogEntry> claimEntries = historyService().createUserOperationLogQuery().operationType("Claim").property("assignee").orderByTimestamp().desc().list();
-    
+
     // two claims
     assertEquals(2, claimEntries.size());
     // our second assign to jim
