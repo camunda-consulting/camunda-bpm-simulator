@@ -18,6 +18,9 @@ import com.camunda.consulting.simulator.listener.PayloadGeneratorListener;
 public class ModelPropertyUtil {
 
   public static final String CAMUNDA_PROPERTY_SIM_NEXT_FIRE = "simNextFire";
+  public static final String CAMUNDA_PROPERTY_SIM_NEXT_COMPLETE = "simNextComplete";
+  public static final String CAMUNDA_PROPERTY_SIM_NEXT_CLAIM = "simNextClaim";
+  public static final String CAMUNDA_PROPERTY_SIM_CLAIM_USER = "simClaimUser";
   public static final String CAMUNDA_PROPERTY_SIM_GENERATE_PAYLOAD = "simGeneratePayload";
   public static final String CAMUNDA_PROPERTY_SIM_INIT_PAYLOAD = "simInitPayload";
   public static final String CAMUNDA_PROPERTY_SIM_INIT_BUSINESS_KEY = "simInitBusinessKey";
@@ -25,12 +28,12 @@ public class ModelPropertyUtil {
   public static final String CAMUNDA_PROPERTY_SIM_KEEP_LISTENERS = "simKeepListeners";
   public static final String[] TRUE = {"true", "True", "yes", "Yes"};
 
-  public static Map<BaseElement, Map<String,Work[]>> workByElementAndPropertyCache = new HashMap<>();
+  public static Map<BaseElement, Map<String, Work[]>> workByElementAndPropertyCache = new HashMap<>();
 
   public static boolean isTrue(Optional<String> propertyValue) {
     return propertyValue.isPresent() && isTrue(propertyValue.get());
   }
-  
+
   public static boolean isTrue(String propertyValue) {
     return Arrays.asList(TRUE).contains(propertyValue);
   }
@@ -77,13 +80,14 @@ public class ModelPropertyUtil {
   }
 
   protected static Stream<String> queryCamundaPropertyValues(BaseElement modelElementInstance, String propertyName) {
-    return modelElementInstance.getExtensionElements().getElementsQuery().filterByType(CamundaProperties.class).list().stream() //
+    return modelElementInstance.getExtensionElements().getElementsQuery().filterByType(CamundaProperties.class)
+        .list().stream() //
         .map(CamundaProperties::getCamundaProperties) //
         .flatMap(Collection::stream) //
         .filter(property -> property.getCamundaName().equals(propertyName)) //
         .map(CamundaProperty::getCamundaValue) //
         .filter(Objects::nonNull) //
-    ;
+        ;
   }
 
   /*
@@ -94,13 +98,13 @@ public class ModelPropertyUtil {
     Map<String, Work[]> byProperty = workByElementAndPropertyCache.get(element);
     if (byProperty == null) {
       byProperty = new HashMap<>();
-      workByElementAndPropertyCache.put(element,byProperty);
+      workByElementAndPropertyCache.put(element, byProperty);
     }
     values = byProperty.get(camundaPropertyName);
     if (values == null) {
-      String[] expressions = readCamundaPropertyMulti(element, camundaPropertyName).toArray(new String[] {});
+      String[] expressions = readCamundaPropertyMulti(element, camundaPropertyName).toArray(new String[]{});
       values = new Work[expressions.length];
-  
+
       DirectedAcyclicGraph<Work, Object> graph = new DirectedAcyclicGraph<>(Object.class);
       for (int i = 0; i < expressions.length; i++) {
         values[i] = new Work(expressions[i]);
@@ -108,18 +112,21 @@ public class ModelPropertyUtil {
       }
       for (Work currentWork : values) {
         for (Work otherWork : values) {
-          if (currentWork.getValueExpression().getExpressionText().matches(".*\\W" + Pattern.quote(otherWork.getVariableExpression().getExpressionText()) + "\\W.*")) {
+          if (currentWork.getValueExpression().getExpressionText().matches(
+              ".*\\W" + Pattern.quote(otherWork.getVariableExpression().getExpressionText()) + "\\W.*")) {
             try {
               graph.addEdge(otherWork, currentWork);
             } catch (IllegalArgumentException e) {
-              PayloadGeneratorListener.LOG.warn("Possible cycle in simulateSetVariable-dependencies detected when checking '{}'", currentWork.getValueExpression());
+              PayloadGeneratorListener.LOG.warn(
+                  "Possible cycle in simulateSetVariable-dependencies detected when checking '{}'",
+                  currentWork.getValueExpression());
             }
           }
         }
       }
-  
+
       int i = 0;
-      for (Iterator<Work> iterator = graph.iterator(); iterator.hasNext();) {
+      for (Iterator<Work> iterator = graph.iterator(); iterator.hasNext(); ) {
         Work next = iterator.next();
         values[i++] = next;
       }

@@ -1,18 +1,19 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:camunda="http://camunda.org/schema/1.0/bpmn" id="Definitions_05tfkfg" targetNamespace="http://bpmn.io/schema/bpmn" exporter="Camunda Modeler" exporterVersion="3.0.0-beta.2">
-  <bpmn:process id="userTaskComplete" isExecutable="true">
+  <bpmn:process id="userTaskClaimComplete" isExecutable="true">
     <bpmn:startEvent id="StartEvent_1">
       <bpmn:outgoing>SequenceFlow_1uhkbo6</bpmn:outgoing>
     </bpmn:startEvent>
     <bpmn:sequenceFlow id="SequenceFlow_1uhkbo6" sourceRef="StartEvent_1" targetRef="Task_1" />
     <bpmn:endEvent id="EndEvent_0fiumuf">
-      <bpmn:incoming>SequenceFlow_0w3ktbu</bpmn:incoming>
+      <bpmn:incoming>SequenceFlow_0bs220a</bpmn:incoming>
     </bpmn:endEvent>
-    <bpmn:sequenceFlow id="SequenceFlow_0w3ktbu" sourceRef="Task_2" targetRef="EndEvent_0fiumuf" />
-    <bpmn:userTask id="Task_2" name="Create Job">
+    <bpmn:sequenceFlow id="SequenceFlow_0w3ktbu" sourceRef="Task_2" targetRef="Task_3" />
+    <bpmn:userTask id="Task_2" name="Create Claim Job">
       <bpmn:extensionElements>
         <camunda:properties>
-          <camunda:property name="simNextComplete" value="${g.now()}" />
+          <camunda:property name="simNextClaim" value="${generator.now()}" />
+          <camunda:property name="simClaimUser" value="felix" />
         </camunda:properties>
       </bpmn:extensionElements>
       <bpmn:incoming>SequenceFlow_09qfj04</bpmn:incoming>
@@ -23,9 +24,21 @@
       <bpmn:incoming>SequenceFlow_1uhkbo6</bpmn:incoming>
       <bpmn:outgoing>SequenceFlow_09qfj04</bpmn:outgoing>
     </bpmn:userTask>
+    <bpmn:sequenceFlow id="SequenceFlow_0bs220a" sourceRef="Task_3" targetRef="EndEvent_0fiumuf" />
+    <bpmn:userTask id="Task_3" name="Claim &#38; Complete Job">
+      <bpmn:extensionElements>
+        <camunda:properties>
+          <camunda:property name="simNextClaim" value="${generator.nowPlusMinutes(1)}" />
+          <camunda:property name="simNextComplete" value="${generator.nowPlusMinutes(5)}" />
+          <camunda:property name="simClaimUser" value="jim" />
+        </camunda:properties>
+      </bpmn:extensionElements>
+      <bpmn:incoming>SequenceFlow_0w3ktbu</bpmn:incoming>
+      <bpmn:outgoing>SequenceFlow_0bs220a</bpmn:outgoing>
+    </bpmn:userTask>
   </bpmn:process>
   <bpmndi:BPMNDiagram id="BPMNDiagram_1">
-    <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="userTaskComplete">
+    <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="userTaskClaimComplete">
       <bpmndi:BPMNShape id="_BPMNShape_StartEvent_2" bpmnElement="StartEvent_1">
         <dc:Bounds x="156" y="102" width="36" height="36" />
       </bpmndi:BPMNShape>
@@ -34,11 +47,11 @@
         <di:waypoint x="245" y="120" />
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNShape id="EndEvent_0fiumuf_di" bpmnElement="EndEvent_0fiumuf">
-        <dc:Bounds x="539" y="102" width="36" height="36" />
+        <dc:Bounds x="695" y="102" width="36" height="36" />
       </bpmndi:BPMNShape>
       <bpmndi:BPMNEdge id="SequenceFlow_0w3ktbu_di" bpmnElement="SequenceFlow_0w3ktbu">
         <di:waypoint x="502" y="120" />
-        <di:waypoint x="539" y="120" />
+        <di:waypoint x="547" y="120" />
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNShape id="UserTask_1i3llw9_di" bpmnElement="Task_2">
         <dc:Bounds x="402" y="80" width="100" height="80" />
@@ -49,6 +62,13 @@
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNShape id="UserTask_01pxo6i_di" bpmnElement="Task_1">
         <dc:Bounds x="245" y="80" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="SequenceFlow_0bs220a_di" bpmnElement="SequenceFlow_0bs220a">
+        <di:waypoint x="647" y="120" />
+        <di:waypoint x="695" y="120" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNShape id="UserTask_1q7tef4_di" bpmnElement="Task_3">
+        <dc:Bounds x="547" y="80" width="100" height="80" />
       </bpmndi:BPMNShape>
     </bpmndi:BPMNPlane>
   </bpmndi:BPMNDiagram>

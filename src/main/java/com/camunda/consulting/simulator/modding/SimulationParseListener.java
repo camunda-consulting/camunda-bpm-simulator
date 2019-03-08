@@ -29,6 +29,7 @@ import org.slf4j.LoggerFactory;
 
 import com.camunda.consulting.simulator.listener.ExternalTaskJobCreateListener;
 import com.camunda.consulting.simulator.listener.PayloadGeneratorListener;
+import com.camunda.consulting.simulator.listener.UserTaskClaimJobCreateListener;
 import com.camunda.consulting.simulator.listener.UserTaskCompleteJobCreateListener;
 import com.camunda.consulting.simulator.property.ModelPropertyUtil;
 
@@ -57,8 +58,8 @@ public class SimulationParseListener implements BpmnParseListener {
       // only create simulating timers for none, conditional, message and signal
       // start events
       final String activityType = startEventActivity.getProperties().get(BpmnProperties.TYPE);
-      if (Arrays.asList(new String[] { ActivityTypes.START_EVENT, ActivityTypes.START_EVENT_CONDITIONAL, ActivityTypes.START_EVENT_MESSAGE,
-          ActivityTypes.START_EVENT_SIGNAL }).contains(activityType)) {
+      if (Arrays.asList(new String[]{ActivityTypes.START_EVENT, ActivityTypes.START_EVENT_CONDITIONAL, ActivityTypes.START_EVENT_MESSAGE,
+          ActivityTypes.START_EVENT_SIGNAL}).contains(activityType)) {
         Optional<String> simNextFire = ModelPropertyUtil.getNextFire(startEventElement);
         if (simNextFire.isPresent()) {
           LOG.debug("Adding simulating start timer for start event " + startEventElement.attribute("id"));
@@ -148,7 +149,11 @@ public class SimulationParseListener implements BpmnParseListener {
     }
 
     addUserTaskCompleteJobCreatingListener(activity);
+    addUserTaskClaimJobCreatingListener(activity);
 
+    // since claim and complete timers are attached to execution, the task has to be a scope to get rid of the timer
+    // jobs when the task is leaved
+    activity.setScope(true);
   }
 
   @Override
@@ -163,7 +168,7 @@ public class SimulationParseListener implements BpmnParseListener {
 
   @Override
   public void parseBoundaryErrorEventDefinition(Element errorEventDefinition, boolean interrupting, ActivityImpl activity,
-      ActivityImpl nestedErrorEventActivity) {
+                                                ActivityImpl nestedErrorEventActivity) {
   }
 
   @Override
@@ -293,13 +298,19 @@ public class SimulationParseListener implements BpmnParseListener {
 
   private void addExternalTaskCompleteJobCreatingListener(ScopeImpl scope) {
     scope.addBuiltInListener(ExecutionListener.EVENTNAME_START, ExternalTaskJobCreateListener.instance());
-
   }
 
   private void addUserTaskCompleteJobCreatingListener(ActivityImpl activity) {
 
-    ((UserTaskActivityBehavior) activity.getActivityBehavior()).getTaskDefinition().addTaskListener(TaskListener.EVENTNAME_CREATE,
-        UserTaskCompleteJobCreateListener.instance());
+    ((UserTaskActivityBehavior) activity.getActivityBehavior()).getTaskDefinition()
+        .addTaskListener(TaskListener.EVENTNAME_CREATE, UserTaskCompleteJobCreateListener.instance());
+
+  }
+
+  private void addUserTaskClaimJobCreatingListener(ActivityImpl activity) {
+
+    ((UserTaskActivityBehavior) activity.getActivityBehavior()).getTaskDefinition()
+        .addTaskListener(TaskListener.EVENTNAME_CREATE, UserTaskClaimJobCreateListener.instance());
 
   }
 
@@ -350,7 +361,7 @@ public class SimulationParseListener implements BpmnParseListener {
     final Object keepListeners = element.getProperty(PROPERTYNAME_KEEP_LISTENERS);
     if (keepListeners == null || !keepListeners.equals(true)) {
       element.getListeners().keySet().forEach(eventType -> {
-        for (Iterator<DelegateListener<?>> i = element.getListeners(eventType).iterator(); i.hasNext();) {
+        for (Iterator<DelegateListener<?>> i = element.getListeners(eventType).iterator(); i.hasNext(); ) {
           DelegateListener<?> currentListener = i.next();
           if (!element.getBuiltInListeners(eventType).contains(currentListener)) {
             i.remove();

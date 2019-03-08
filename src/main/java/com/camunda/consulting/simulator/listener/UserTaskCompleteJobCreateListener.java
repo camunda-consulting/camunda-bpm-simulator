@@ -24,10 +24,15 @@ public class UserTaskCompleteJobCreateListener extends AbstractTimerJobCreator i
   @Override
   public void notify(DelegateTask task) {
 
-    Optional<Expression> nextFireExpression = getCachedNextFireExpression(task.getExecution(), task.getTaskDefinitionKey());
+    Optional<Expression> nextCompleteExpression = getCachedNextCompleteExpression(task.getExecution(), task.getTaskDefinitionKey());
 
-    if (nextFireExpression.isPresent()) {
-      Date dueDate = (Date) nextFireExpression.get().getValue(task.getExecution());
+    // backwards compatibility (user task next fire)
+    if (!nextCompleteExpression.isPresent()) {
+      nextCompleteExpression = getCachedNextFireExpression(task.getExecution(), task.getTaskDefinitionKey());
+    }
+
+    if (nextCompleteExpression.isPresent()) {
+      Date dueDate = (Date) nextCompleteExpression.get().getValue(task.getExecution());
       createJobForUserTaskCompletion(task, dueDate);
     }
   }
