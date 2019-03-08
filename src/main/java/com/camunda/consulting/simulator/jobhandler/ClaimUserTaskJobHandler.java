@@ -21,24 +21,27 @@ public class ClaimUserTaskJobHandler implements JobHandler<ClaimUserTaskJobHandl
   public void execute(ClaimUserTaskJobHandlerConfiguration configuration, ExecutionEntity execution, CommandContext commandContext, String tenantId) {
     String taskId = configuration.getTaskId();
     String userId = configuration.getUserId();
-    // eventually we created a claim job, but before it gets executed the usertask is completed
-    if (execution.getProcessEngineServices().getTaskService().createTaskQuery().taskId(taskId).list().size() > 0) {
-	// manually authenticate the user so a user operations log is written
-	execution.getProcessEngineServices().getIdentityService().setAuthenticatedUserId(userId);
-	execution.getProcessEngineServices().getTaskService().claim(taskId, userId);
-	execution.getProcessEngineServices().getIdentityService().clearAuthentication();
+
+    // manually authenticate the user so a user operations log is written
+    execution.getProcessEngineServices().getIdentityService().setAuthenticatedUserId(userId);
+    try {
+      execution.getProcessEngineServices().getTaskService().claim(taskId, userId);
+    } finally {
+      // make sure to reset authentication
+      execution.getProcessEngineServices().getIdentityService().clearAuthentication();
     }
+
   }
 
   @Override
   public ClaimUserTaskJobHandlerConfiguration newConfiguration(String canonicalString) {
-      String[] configParts = canonicalString.split("\\" + TimerEventJobHandler.JOB_HANDLER_CONFIG_PROPERTY_DELIMITER);
-      if (configParts.length != 2) {
-        throw new ProcessEngineException("Illegal simulator claim user task job handler configuration: '" + canonicalString
-            + "': expecting two part configuration seperated by '" + TimerEventJobHandler.JOB_HANDLER_CONFIG_PROPERTY_DELIMITER + "'.");
-      }
-      
-      return new ClaimUserTaskJobHandlerConfiguration(configParts[0], configParts[1]);
+    String[] configParts = canonicalString.split("\\" + TimerEventJobHandler.JOB_HANDLER_CONFIG_PROPERTY_DELIMITER);
+    if (configParts.length != 2) {
+      throw new ProcessEngineException("Illegal simulator claim user task job handler configuration: '" + canonicalString
+          + "': expecting two part configuration seperated by '" + TimerEventJobHandler.JOB_HANDLER_CONFIG_PROPERTY_DELIMITER + "'.");
+    }
+
+    return new ClaimUserTaskJobHandlerConfiguration(configParts[0], configParts[1]);
   }
 
   @Override
@@ -55,9 +58,9 @@ public class ClaimUserTaskJobHandler implements JobHandler<ClaimUserTaskJobHandl
       this.taskId = taskId;
       this.userId = userId;
     }
-    
+
     String getUserId() {
-	return userId;
+      return userId;
     }
 
     String getTaskId() {
