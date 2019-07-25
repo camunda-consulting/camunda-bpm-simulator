@@ -13,9 +13,10 @@ import org.camunda.bpm.BpmPlatform;
 import org.camunda.bpm.container.RuntimeContainerDelegate;
 import org.camunda.bpm.engine.history.HistoricProcessInstance;
 import org.camunda.bpm.engine.history.HistoricVariableInstance;
+import org.camunda.bpm.engine.impl.cfg.ProcessEngineConfigurationImpl;
+import org.camunda.bpm.engine.runtime.ProcessInstance;
 import org.camunda.bpm.engine.test.Deployment;
 import org.camunda.bpm.engine.test.ProcessEngineRule;
-import org.camunda.bpm.engine.test.mock.Mocks;
 import org.joda.time.DateTime;
 import org.junit.Before;
 import org.junit.Rule;
@@ -59,6 +60,37 @@ public class SimulationExecutorTest {
     assertThat(count).isEqualTo(60);
   }
 
+  @Test
+  @Deployment(resources="stopSimulationAfterRedeployment.bpmn")
+  public void testSimulationStoppedAfterRedeployment() throws InterruptedException {
+    SimulationExecutor.execute(DateTime.now().plusHours(-2).toDate(), DateTime.now().plusHours(-1).plusMinutes(1).toDate());
+    long count = historyService().createHistoricProcessInstanceQuery().processDefinitionKey("redeployment").completed().count();
+    assertThat(count).isEqualTo(60);
+    //assert that after start of instance it's completed
+    ProcessInstance pi = rule.getProcessEngine().getRuntimeService().startProcessInstanceByKey("redeployment", "A-123"); 
+    
+    SimulationExecutor.execute(DateTime.now().toDate(), DateTime.now().plusSeconds(10).toDate());
+    count = historyService().createHistoricProcessInstanceQuery().processDefinitionKey("redeployment").completed().count();
+    assertThat(count).isEqualTo(61);
+    
+    //redeployment, should not complete it afterwards
+    SimulatorPlugin.resetProcessEngineElements();
+    SimulationExecutor.stopSimulation();
+    
+    rule.getProcessEngine().getRepositoryService().createDeployment() 
+        .addClasspathResource("stopSimulationAfterRedeployment.bpmn")
+        .deploy();
+
+    rule.getProcessEngine().getRuntimeService().startProcessInstanceByKey("redeployment", "A-234");
+    
+    SimulationExecutor.execute(DateTime.now().toDate(), DateTime.now().plusSeconds(10).toDate());
+    count = historyService().createHistoricProcessInstanceQuery().processDefinitionKey("redeployment").completed().count();
+    assertThat(count).isEqualTo(61);
+    
+    ProcessEngineConfigurationImpl processEngineConfigurationImpl = (ProcessEngineConfigurationImpl) rule.getProcessEngine().getProcessEngineConfiguration();
+    assertThat(processEngineConfigurationImpl.getJobHandlers());
+  }
+  
   @Test
   @Deployment(resources = "simulateStartTestModel.bpmn")
   public void testSimulateStartEventWithBusinessKeyAndPayload() {

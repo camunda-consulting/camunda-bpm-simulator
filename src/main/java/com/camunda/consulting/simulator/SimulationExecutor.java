@@ -41,6 +41,10 @@ public class SimulationExecutor {
   public static void stopSimulation(){
     simulationStopped = true;
   }
+  
+  public static void restartSimulation() {
+    simulationStopped = false;
+  }
 
   public static void execute(Date start, Date end) {
 

@@ -52,6 +52,24 @@ public class SimulatorPlugin implements ProcessEnginePlugin {
   public static ProcessEngine getProcessEngine() {
     return BpmPlatform.getDefaultProcessEngine();
   }
+  
+  public static void resetProcessEngineElements() {
+    ProcessEngineConfigurationImpl pimpl = getProcessEngineConfiguration();
+    
+    BpmnDeployer originalDeployer = new BpmnDeployer();
+    pimpl.getDeployers().removeIf(deployer -> {
+      if(deployer instanceof SimulatingBpmnDeployer) {
+        originalDeployer.setBpmnParser(((SimulatingBpmnDeployer) deployer).getBpmnParser());
+        originalDeployer.setExpressionManager(((SimulatingBpmnDeployer) deployer).getExpressionManager());
+        originalDeployer.setIdGenerator(((SimulatingBpmnDeployer) deployer).getIdGenerator());
+        return true;
+      }      
+      return false;
+    });
+    pimpl.getDeployers().add(originalDeployer);
+    
+    pimpl.getCustomPreBPMNParseListeners().removeIf(listener -> (listener instanceof SimulationParseListener));
+  }
 
   public static SimulatingBpmnDeployer getSimulationBpmnDeployer() {
     List<Deployer> deployers = getProcessEngineConfiguration().getDeployers();
