@@ -66,9 +66,11 @@ public class SimulatorPlugin implements ProcessEnginePlugin {
       }      
       return false;
     });
-    pimpl.getDeployers().add(originalDeployer);
-    
+   
     pimpl.getCustomPreBPMNParseListeners().removeIf(listener -> (listener instanceof SimulationParseListener));
+    originalDeployer.getBpmnParser().getParseListeners().removeIf(listener -> (listener instanceof SimulationParseListener));
+    
+    pimpl.getDeployers().add(originalDeployer);
   }
 
   public static SimulatingBpmnDeployer getSimulationBpmnDeployer() {
