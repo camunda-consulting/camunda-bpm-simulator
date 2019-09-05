@@ -142,8 +142,11 @@ By default, the shipped payload generator is used, so it is always possible to u
   ![](images/htSimFire.PNG)
 
 - You can add a wide range of data to the process using **simGeneratePayload** property. In this example we'd like the simulator to select between three values - "yes", "no", or "maybe". It then assigns the value to the "approved" variable which is needed for the gateway to work.
-
   ![](images/dataSim.png)
+
+- If you want to unevenly distribute values you can use a **Normal** or **Beta** distribution by using the **normalFromArgsX** or **betaFromArgsX** functions. Supply the values to be selected (from two up to nine) and then supply the **mean** and **standard deviation** (typically decimals from 0 to 1) for the normal distribution function. For a beta distribution supply the **alpha** and **beta** typically integers. See below for examples.
+
+  ![](images/distributions.PNG)
 
 - Now when you start the application the simulator will generate process instance and task instance data to make Cockpit and Optimize reports more interesting to view without having to run process instances manually. Be sure to have a look at the **PayloadGenerator** and **SimulationExecutor** classes for additional methods to use. 
 
