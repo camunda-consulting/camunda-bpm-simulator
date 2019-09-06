@@ -11,6 +11,7 @@ import org.apache.ibatis.logging.LogFactory;
 import org.assertj.core.api.Condition;
 import org.camunda.bpm.BpmPlatform;
 import org.camunda.bpm.container.RuntimeContainerDelegate;
+import org.camunda.bpm.engine.ProcessEngineConfiguration;
 import org.camunda.bpm.engine.history.HistoricProcessInstance;
 import org.camunda.bpm.engine.history.HistoricVariableInstance;
 import org.camunda.bpm.engine.impl.cfg.ProcessEngineConfigurationImpl;
@@ -19,6 +20,7 @@ import org.camunda.bpm.engine.test.Deployment;
 import org.camunda.bpm.engine.test.ProcessEngineRule;
 import org.joda.time.DateTime;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 
@@ -81,7 +83,7 @@ public class SimulationExecutorTest {
         .addClasspathResource("stopSimulationAfterRedeployment.bpmn")
         .deploy();
 
-    rule.getProcessEngine().getRuntimeService().startProcessInstanceByKey("redeployment", "A-234");
+    ProcessInstance processInstance = rule.getProcessEngine().getRuntimeService().startProcessInstanceByKey("redeployment", "A-234");
     
     SimulationExecutor.execute(DateTime.now().toDate(), DateTime.now().plusSeconds(10).toDate());
     count = historyService().createHistoricProcessInstanceQuery().processDefinitionKey("redeployment").completed().count();
@@ -89,6 +91,10 @@ public class SimulationExecutorTest {
     
     ProcessEngineConfigurationImpl processEngineConfigurationImpl = (ProcessEngineConfigurationImpl) rule.getProcessEngine().getProcessEngineConfiguration();
     assertThat(processEngineConfigurationImpl.getJobHandlers());
+    
+    rule.getProcessEngine().getRuntimeService().deleteProcessInstance(processInstance.getId(), "Yee");
+    SimulatorPlugin.setProcessEngineElements();
+    SimulationExecutor.restartSimulation();
   }
   
   @Test
