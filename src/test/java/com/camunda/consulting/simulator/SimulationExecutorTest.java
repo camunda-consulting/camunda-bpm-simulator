@@ -77,7 +77,7 @@ public class SimulationExecutorTest {
     assertThat(count).isEqualTo(61);
     
     //redeployment, should not complete it afterwards
-    SimulatorPlugin.resetProcessEngineElements();
+    SimulatorPlugin.resetProcessEngine();
 
     rule.getProcessEngine().getRepositoryService().createDeployment() 
         .addClasspathResource("stopSimulationAfterRedeployment.bpmn")
@@ -93,7 +93,7 @@ public class SimulationExecutorTest {
     assertThat(processInstance).isNotEnded();
     
     // re-activate again
-    SimulatorPlugin.setProcessEngineElements();
+    SimulatorPlugin.alterProcessEngine();
   }
   
   @Test

@@ -35,11 +35,22 @@ public class SimulatorPlugin implements ProcessEnginePlugin {
 
   public static final String PAYLOAD_GENERATOR_BEAN_NAME = "g";
 
+  private static boolean processEngineIsModified = false;
+
   private static Object payloadGenerator;
+
+  private static List<JobHandler> originalCustomJobHandlers;
+  private static List<JobHandler> simulationCustomJobHandlers;
+  private static List<CommandInterceptor> originalPostCommandInterceptors;
+  private static List<CommandInterceptor> simulationPostCommandInterceptors;
+  private static List<Deployer> originalDeployers;
+  private static List<Deployer> simulationDeployers;
 
   static {
     setPayloadGenerator(new PayloadGenerator());
   }
+
+  private static SimulatingBpmnDeployer simulatingBpmnDeployer;
 
   public static void setPayloadGenerator(Object payloadGenerator) {
     SimulatorPlugin.payloadGenerator = payloadGenerator;
@@ -52,58 +63,9 @@ public class SimulatorPlugin implements ProcessEnginePlugin {
   public static ProcessEngine getProcessEngine() {
     return BpmPlatform.getDefaultProcessEngine();
   }
-  
-  public static void resetProcessEngineElements() {
-    ProcessEngineConfigurationImpl pimpl = getProcessEngineConfiguration();
-    
-    BpmnDeployer originalDeployer = new BpmnDeployer();
-    pimpl.getDeployers().removeIf(deployer -> {
-      if(deployer instanceof SimulatingBpmnDeployer) {
-        originalDeployer.setBpmnParser(((SimulatingBpmnDeployer) deployer).getBpmnParser());
-        originalDeployer.setExpressionManager(((SimulatingBpmnDeployer) deployer).getExpressionManager());
-        originalDeployer.setIdGenerator(((SimulatingBpmnDeployer) deployer).getIdGenerator());
-        return true;
-      }      
-      return false;
-    });
-   
-    pimpl.getCustomPreBPMNParseListeners().removeIf(listener -> (listener instanceof SimulationParseListener));
-    originalDeployer.getBpmnParser().getParseListeners().removeIf(listener -> (listener instanceof SimulationParseListener));
-    
-    pimpl.getDeployers().add(originalDeployer);
-  }
-  
-  public static void setProcessEngineElements() {
-    ProcessEngineConfigurationImpl pimpl = getProcessEngineConfiguration();
-    SimulationParseListener parseListener = new SimulationParseListener();
-    
-    for (Deployer deployer: pimpl.getDeployers()) {
-      if(deployer instanceof BpmnDeployer && !(deployer instanceof SimulatingBpmnDeployer)) {  
-        SimulatingBpmnDeployer simDeployer = new SimulatingBpmnDeployer((BpmnDeployer) deployer);
-        pimpl.getDeployers().add(simDeployer);
-        simDeployer.getBpmnParser().getParseListeners().add(parseListener);
-        pimpl.getDeployers().remove(deployer);
-      } 
-    }
-   
-    ArrayList<BpmnParseListener> parseListeners = new ArrayList<>();
-    pimpl.setCustomPreBPMNParseListeners(parseListeners);
-    parseListeners.add(new SimulationParseListener());
-  }
 
   public static SimulatingBpmnDeployer getSimulationBpmnDeployer() {
-    List<Deployer> deployers = getProcessEngineConfiguration().getDeployers();
-    SimulatingBpmnDeployer bpmnDeployer = null;
-    for (Deployer deployer : deployers) {
-      if (deployer instanceof SimulatingBpmnDeployer) {
-        bpmnDeployer = (SimulatingBpmnDeployer) deployer;
-        break;
-      }
-    }
-    if (bpmnDeployer == null) {
-      throw new RuntimeException("No SimulationBpmnDeployer found. Probably simulation plugin was not initialized correctly.");
-    }
-    return bpmnDeployer;
+    return simulatingBpmnDeployer;
   }
 
   public static Object evaluateExpression(String expression, VariableScope scope) {
@@ -112,40 +74,87 @@ public class SimulatorPlugin implements ProcessEnginePlugin {
 
   @Override
   public void preInit(ProcessEngineConfigurationImpl processEngineConfiguration) {
-    List<BpmnParseListener> parseListeners = processEngineConfiguration.getCustomPreBPMNParseListeners();
-    if (parseListeners == null) {
-      parseListeners = new ArrayList<>();
-      processEngineConfiguration.setCustomPreBPMNParseListeners(parseListeners);
-    }
-    parseListeners.add(new SimulationParseListener());
-
-    @SuppressWarnings("rawtypes")
     List<JobHandler> customJobHandlers = processEngineConfiguration.getCustomJobHandlers();
-    if (customJobHandlers == null) {
-      customJobHandlers = new ArrayList<>();
-      processEngineConfiguration.setCustomJobHandlers(customJobHandlers);
+    if (originalCustomJobHandlers == null) {
+      originalCustomJobHandlers = new ArrayList<>();
+      processEngineConfiguration.setCustomJobHandlers(originalCustomJobHandlers);
+      simulationCustomJobHandlers = new ArrayList<>();
+    } else {
+      originalCustomJobHandlers = new ArrayList<>(customJobHandlers);
+      simulationCustomJobHandlers = new ArrayList<>(originalCustomJobHandlers);
     }
-    customJobHandlers.add(new CompleteUserTaskJobHandler());
-    customJobHandlers.add(new ClaimUserTaskJobHandler());
-    customJobHandlers.add(new FireEventJobHandler());
-    customJobHandlers.add(new CompleteExternalTaskJobHandler());
-    customJobHandlers.add(new StartProcessInstanceJobHandler());
+    simulationCustomJobHandlers.add(new CompleteUserTaskJobHandler());
+    simulationCustomJobHandlers.add(new ClaimUserTaskJobHandler());
+    simulationCustomJobHandlers.add(new FireEventJobHandler());
+    simulationCustomJobHandlers.add(new CompleteExternalTaskJobHandler());
+    simulationCustomJobHandlers.add(new StartProcessInstanceJobHandler());
 
     List<CommandInterceptor> postCommandInterceptors = processEngineConfiguration.getCustomPostCommandInterceptorsTxRequired();
-    if (postCommandInterceptors == null) {
-      postCommandInterceptors = new ArrayList<>();
-      processEngineConfiguration.setCustomPostCommandInterceptorsTxRequired(postCommandInterceptors);
+    if (originalPostCommandInterceptors == null) {
+      originalPostCommandInterceptors = new ArrayList<>();
+      processEngineConfiguration.setCustomPostCommandInterceptorsTxRequired(originalPostCommandInterceptors);
+      simulationPostCommandInterceptors = new ArrayList<>();
+    } else {
+      originalPostCommandInterceptors = new ArrayList<>(postCommandInterceptors);
+      simulationPostCommandInterceptors = new ArrayList<>(originalPostCommandInterceptors);
     }
-    postCommandInterceptors.add(new CreateFireEventJobCommandInterceptor());
+    simulationPostCommandInterceptors.add(new CreateFireEventJobCommandInterceptor());
+
+    preAlterProcessEngine(processEngineConfiguration);
   }
 
   @Override
   public void postInit(ProcessEngineConfigurationImpl processEngineConfiguration) {
-
-    replaceBpmnDeployer(processEngineConfiguration);
+    // we don't want to revert that ever
     addPayloadGeneratorExpressionResolution(processEngineConfiguration);
 
+    List<Deployer> deployers = processEngineConfiguration.getDeployers();
+    originalDeployers = new ArrayList<>(deployers);
+    simulationDeployers = new ArrayList<>(originalDeployers.size());
+    originalDeployers.forEach(deployer -> {
+      if (deployer instanceof BpmnDeployer) {
+        simulatingBpmnDeployer = new SimulatingBpmnDeployer((BpmnDeployer) deployer);
+        simulationDeployers.add(simulatingBpmnDeployer);
+      } else {
+        simulationDeployers.add(deployer);
+      }
+    });
+
+    postAlterProcessEngine(processEngineConfiguration);
   }
+
+  public static void alterProcessEngine() {
+    preAlterProcessEngine(getProcessEngineConfiguration());
+    postAlterProcessEngine(getProcessEngineConfiguration());
+  }
+
+  private static void preAlterProcessEngine(ProcessEngineConfigurationImpl processEngineConfiguration) {
+    processEngineConfiguration.getCustomJobHandlers().clear();
+    processEngineConfiguration.getCustomJobHandlers().addAll(simulationCustomJobHandlers);
+    processEngineConfiguration.getCustomPostCommandInterceptorsTxRequired().clear();
+    processEngineConfiguration.getCustomPostCommandInterceptorsTxRequired().addAll(simulationPostCommandInterceptors);
+  }
+
+  private static void postAlterProcessEngine(ProcessEngineConfigurationImpl processEngineConfiguration) {
+    processEngineConfiguration.getDeployers().clear();
+    processEngineConfiguration.getDeployers().addAll(simulationDeployers);
+    processEngineConfiguration.getDeploymentCache().setDeployers(simulationDeployers);
+  }
+
+  public static void resetProcessEngine() {
+    resetProcessEngine(getProcessEngineConfiguration());
+  }
+
+  private static void resetProcessEngine(ProcessEngineConfigurationImpl processEngineConfiguration) {
+    processEngineConfiguration.getCustomJobHandlers().clear();
+    processEngineConfiguration.getCustomJobHandlers().addAll(originalCustomJobHandlers);
+    processEngineConfiguration.getCustomPostCommandInterceptorsTxRequired().clear();
+    processEngineConfiguration.getCustomPostCommandInterceptorsTxRequired().addAll(originalPostCommandInterceptors);
+    processEngineConfiguration.getDeployers().clear();
+    processEngineConfiguration.getDeployers().addAll(originalDeployers);
+    processEngineConfiguration.getDeploymentCache().setDeployers(originalDeployers);
+  }
+
 
   private void addPayloadGeneratorExpressionResolution(ProcessEngineConfigurationImpl processEngineConfiguration) {
     ExpressionManager expressionManager = processEngineConfiguration.getExpressionManager();
@@ -154,7 +163,7 @@ public class SimulatorPlugin implements ProcessEnginePlugin {
     try {
       Method method = ExpressionManager.class.getDeclaredMethod("getCachedElResolver", (Class<?>[]) null);
       method.setAccessible(true);
-      Object invoke = method.invoke(expressionManager, new Object[] {});
+      Object invoke = method.invoke(expressionManager, new Object[]{});
 
       compositeElResolver = (CompositeELResolver) invoke;
     } catch (NoSuchMethodException | SecurityException | IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
@@ -198,26 +207,6 @@ public class SimulatorPlugin implements ProcessEnginePlugin {
     });
   }
 
-  private void replaceBpmnDeployer(ProcessEngineConfigurationImpl processEngineConfiguration) {
-    List<Deployer> deployers = processEngineConfiguration.getDeployers();
-    BpmnDeployer originalBpmnDeployer = null;
-    int position = 0;
-    for (Deployer deployer : deployers) {
-      if (deployer instanceof BpmnDeployer) {
-        originalBpmnDeployer = (BpmnDeployer) deployer;
-        break;
-      }
-      position++;
-    }
-    if (originalBpmnDeployer == null) {
-      throw new RuntimeException("No BpmnDeployer found.");
-    }
-
-    SimulatingBpmnDeployer bpmnDeployer = new SimulatingBpmnDeployer(originalBpmnDeployer);
-    deployers.set(position, bpmnDeployer);
-
-    processEngineConfiguration.getDeploymentCache().setDeployers(deployers);
-  }
 
   @Override
   public void postProcessEngineBuild(ProcessEngine processEngine) {
