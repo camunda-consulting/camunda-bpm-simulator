@@ -51,23 +51,22 @@ public class SimulationExecutor {
     ProcessEngineConfigurationImpl processEngineConfigurationImpl = SimulatorPlugin.getProcessEngineConfiguration();
     ProcessEngine processEngine = SimulatorPlugin.getProcessEngine();
     CommandExecutor commandExecutor = processEngineConfigurationImpl.getCommandExecutorTxRequired();
-    
-    if(!simulationStopped) {
-      runWithPreparedEngineConfiguration(processEngineConfigurationImpl, commandExecutor, () -> {
-        
-        ClockUtil.setCurrentTime(start);
-        progress = 0;
-        LocalDateTime lastMetricUpdate = null;
-        
-        updateStartTimersForCurrentTime(commandExecutor);
-        
-        Optional<Job> job;
+
+    runWithPreparedEngineConfiguration(processEngineConfigurationImpl, commandExecutor, () -> {
+
+      ClockUtil.setCurrentTime(start);
+      progress = 0;
+      LocalDateTime lastMetricUpdate = null;
+
+      updateStartTimersForCurrentTime(commandExecutor);
+
+      Optional<Job> job;
         do {
           // execute all jobs that are due before current time
           do {
             // work around engine "bug"
             makeTimeGoBy();
-            
+
             // by setting the processEngineConfigurationImpl.setJobExecutor*
             // properties we can be sure to get the next job with minimum due date
             List<JobEntity> jobs = commandExecutor.execute(new Command<List<JobEntity>>() {
@@ -78,25 +77,24 @@ public class SimulationExecutor {
             });
             job = jobs.stream().map(jobEntity -> (Job) jobEntity).findFirst();
             job.map(Job::getId).ifPresent(processEngine.getManagementService()::executeJob);
-            
-            // write metrics from time to time
-            final LocalDateTime simulationTime = ClockUtil.getCurrentTime().toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime();
-            if (lastMetricUpdate == null || lastMetricUpdate.plusMinutes(METRIC_WRITE_INTERVAL_MINUTES).isBefore(simulationTime)) {
-              lastMetricUpdate = simulationTime;
-              processEngineConfigurationImpl.getDbMetricsReporter().reportNow();
-            }
-          } while (!simulationStopped && job.isPresent() && (job.get().getDuedate() == null || !job.get().getDuedate().after(end)));
-          
-          // get the next job that is due after current time and adjust clock to
-          // its due date
-          job = processEngine.getManagementService().createJobQuery().active().withRetriesLeft().orderByJobDuedate().asc().listPage(0, 1).stream().findFirst();
-          job.map(Job::getDuedate).ifPresent(ClockUtil::setCurrentTime);
-          progress = Math.min(1, (ClockUtil.getCurrentTime().getTime() - start.getTime()) / (double) (end.getTime() - start.getTime()));
-          
+
+          // write metrics from time to time
+          final LocalDateTime simulationTime = ClockUtil.getCurrentTime().toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime();
+          if (lastMetricUpdate == null || lastMetricUpdate.plusMinutes(METRIC_WRITE_INTERVAL_MINUTES).isBefore(simulationTime)) {
+            lastMetricUpdate = simulationTime;
+            processEngineConfigurationImpl.getDbMetricsReporter().reportNow();
+          }
+        } while (!simulationStopped && job.isPresent() && (job.get().getDuedate() == null || !job.get().getDuedate().after(end)));
+
+        // get the next job that is due after current time and adjust clock to
+        // its due date
+        job = processEngine.getManagementService().createJobQuery().active().withRetriesLeft().orderByJobDuedate().asc().listPage(0, 1).stream().findFirst();
+        job.map(Job::getDuedate).ifPresent(ClockUtil::setCurrentTime);
+        progress = Math.min(1, (ClockUtil.getCurrentTime().getTime() - start.getTime()) / (double) (end.getTime() - start.getTime()));
+
           LOG.debug("Advance simulation time to: " + ClockUtil.getCurrentTime());
         } while ( !simulationStopped && job.isPresent() && (job.get().getDuedate() == null || !job.get().getDuedate().after(end)));
-      });
-    }
+    });
   }
 
   private static void runWithPreparedEngineConfiguration(ProcessEngineConfigurationImpl processEngineConfigurationImpl, CommandExecutor commandExecutor,
