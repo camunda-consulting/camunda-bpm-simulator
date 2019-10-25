@@ -23,6 +23,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.math3.distribution.NormalDistribution;
+import org.apache.commons.math3.distribution.BetaDistribution;
 import org.camunda.bpm.engine.impl.util.ClockUtil;
 import org.camunda.bpm.engine.variable.Variables;
 import org.camunda.bpm.engine.variable.Variables.SerializationDataFormats;
@@ -280,6 +281,118 @@ public class PayloadGenerator {
     if (objects == null || objects.size() == 0)
       return null;
     return objects.get((int) (Math.random() * objects.size()));
+  }
+
+  @SuppressWarnings("unchecked")
+  public <T> T betaFromArgs2(T o1, T o2, int alpha, int beta) {
+    return (T) betaFromArray(new Object[] { o1, o2, }, alpha, beta);
+  }
+
+  @SuppressWarnings("unchecked")
+  public <T> T betaFromArgs3(T o1, T o2, T o3, int alpha, int beta) {
+    return (T) betaFromArray(new Object[] { o1, o2, o3, }, alpha, beta);
+  }
+
+  @SuppressWarnings("unchecked")
+  public <T> T betaFromArgs4(T o1, T o2, T o3, T o4, int alpha, int beta) {
+    return (T) betaFromArray(new Object[] { o1, o2, o3, o4 }, alpha, beta);
+  }
+
+  @SuppressWarnings("unchecked")
+  public <T> T betaFromArgs5(T o1, T o2, T o3, T o4, T o5, int alpha, int beta) {
+    return (T) betaFromArray(new Object[] { o1, o2, o3, o4, o5 }, alpha, beta);
+  }
+
+  @SuppressWarnings("unchecked")
+  public <T> T betaFromArgs6(T o1, T o2, T o3, T o4, T o5, T o6, int alpha, int beta) {
+    return (T) betaFromArray(new Object[] { o1, o2, o3, o4, o5, o6 }, alpha, beta);
+  }
+
+  @SuppressWarnings("unchecked")
+  public <T> T betaFromArgs7(T o1, T o2, T o3, T o4, T o5, T o6, T o7, int alpha, int beta) {
+    return (T) betaFromArray(new Object[] { o1, o2, o3, o4, o5, o6, o7 }, alpha, beta);
+  }
+
+  @SuppressWarnings("unchecked")
+  public <T> T betaFromArgs8(T o1, T o2, T o3, T o4, T o5, T o6, T o7, T o8, int alpha, int beta) {
+    return (T) betaFromArray(new Object[] { o1, o2, o3, o4, o5, o6, o7, o8 }, alpha, beta);
+  }
+
+  @SuppressWarnings("unchecked")
+  public <T> T betaFromArgs9(T o1, T o2, T o3, T o4, T o5, T o6, T o7, T o8, T o9, int alpha, int beta) {
+    return (T) betaFromArray(new Object[] { o1, o2, o3, o4, o5, o6, o7, o8, o9 }, alpha, beta);
+  }
+  public Object betaFromArray(Object[] objects, int alpha, int beta){
+    BetaDistribution bd = new BetaDistribution(alpha, beta);
+    if (objects == null || objects.length == 0)
+      return null;
+    return objects[(int) (bd.sample() * objects.length)];
+
+  }
+
+  @SuppressWarnings("unchecked")
+  public <T> T normalFromArgs2(T o1, T o2, double mean, double sDev) {
+    return (T) normalFromArray(new Object[] { o1, o2 }, mean, sDev);
+  }
+
+  @SuppressWarnings("unchecked")
+  public <T> T normalFromArgs3(T o1, T o2, T o3, double mean, double sDev) {
+    return (T) normalFromArray(new Object[] { o1, o2, o3, }, mean, sDev);
+  }
+
+  @SuppressWarnings("unchecked")
+  public <T> T normalFromArgs4(T o1, T o2, T o3, T o4, double mean, double sDev) {
+    return (T) normalFromArray(new Object[] { o1, o2, o3, o4 }, mean, sDev);
+  }
+
+  @SuppressWarnings("unchecked")
+  public <T> T normalFromArgs5(T o1, T o2, T o3, T o4, T o5, double mean, double sDev) {
+    return (T) normalFromArray(new Object[] { o1, o2, o3, o4, o5 }, mean, sDev);
+  }
+
+  @SuppressWarnings("unchecked")
+  public <T> T normalFromArgs6(T o1, T o2, T o3, T o4, T o5, T o6, double mean, double sDev) {
+    return (T) normalFromArray(new Object[] { o1, o2, o3, o4, o5, o6 }, mean, sDev);
+  }
+
+  @SuppressWarnings("unchecked")
+  public <T> T normalFromArgs7(T o1, T o2, T o3, T o4, T o5, T o6, T o7, double mean, double sDev) {
+    return (T) normalFromArray(new Object[] { o1, o2, o3, o4, o5, o6, o7 }, mean, sDev);
+  }
+
+  @SuppressWarnings("unchecked")
+  public <T> T normalFromArgs8(T o1, T o2, T o3, T o4, T o5, T o6, T o7, T o8, double mean, double sDev) {
+    return (T) normalFromArray(new Object[] { o1, o2, o3, o4, o5, o6, o7, o8 }, mean, sDev);
+  }
+
+  @SuppressWarnings("unchecked")
+  public <T> T normalFromArgs9(T o1, T o2, T o3, T o4, T o5, T o6, T o7, T o8, T o9, double mean, double sDev) {
+    return (T) normalFromArray(new Object[] { o1, o2, o3, o4, o5, o6, o7, o8, o9 }, mean, sDev);
+  }
+
+  public Object normalFromArray(Object[] objects, double mean, double sDev){
+    NormalDistribution nd = null;
+
+    if(mean == 0 && sDev == 0){
+      nd = new NormalDistribution(0.5, 0.30);
+    } else {
+      nd = new NormalDistribution(mean, sDev);
+    }
+    if (objects == null || objects.length == 0)
+      return null;
+
+    int index = (int) (nd.sample() * objects.length);
+
+    if (index >= objects.length) {
+      return objects[objects.length - 1];
+    } else {
+      if (index < 0) {
+        return objects[0];
+      } else {
+          return objects[index];
+      }
+    }
+
   }
 
   /**
