@@ -36,12 +36,6 @@ public class SimulationExecutor {
     return progress;
   }
 
-  private static boolean simulationStopped = false;
-
-  public static void stopSimulation(){
-    simulationStopped = true;
-  }
-
   public static void execute(Date start, Date end) {
 
     ProcessEngineConfigurationImpl processEngineConfigurationImpl = SimulatorPlugin.getProcessEngineConfiguration();
@@ -80,7 +74,7 @@ public class SimulationExecutor {
             lastMetricUpdate = simulationTime;
             processEngineConfigurationImpl.getDbMetricsReporter().reportNow();
           }
-        } while (!simulationStopped && job.isPresent() && (job.get().getDuedate() == null || !job.get().getDuedate().after(end)));
+        } while (job.isPresent() && (job.get().getDuedate() == null || !job.get().getDuedate().after(end)));
 
         // get the next job that is due after current time and adjust clock to
         // its due date
@@ -88,8 +82,8 @@ public class SimulationExecutor {
         job.map(Job::getDuedate).ifPresent(ClockUtil::setCurrentTime);
         progress = Math.min(1, (ClockUtil.getCurrentTime().getTime() - start.getTime()) / (double) (end.getTime() - start.getTime()));
 
-          LOG.debug("Advance simulation time to: " + ClockUtil.getCurrentTime());
-        } while ( !simulationStopped && job.isPresent() && (job.get().getDuedate() == null || !job.get().getDuedate().after(end)));
+        LOG.debug("Advance simulation time to: " + ClockUtil.getCurrentTime());
+      } while (job.isPresent() && (job.get().getDuedate() == null || !job.get().getDuedate().after(end)));
     });
   }
 
@@ -120,7 +114,6 @@ public class SimulationExecutor {
     } finally {
       ClockUtil.reset();
       progress = 1;
-      simulationStopped = false;
 
       updateStartTimersForCurrentTime(commandExecutor);
 
@@ -174,6 +167,4 @@ public class SimulationExecutor {
     cal.add(Calendar.MILLISECOND, 1);
     ClockUtil.setCurrentTime(cal.getTime());
   }
-
-
 }

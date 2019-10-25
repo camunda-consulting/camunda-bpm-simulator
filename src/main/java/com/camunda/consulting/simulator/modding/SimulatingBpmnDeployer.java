@@ -7,6 +7,9 @@ import java.util.Map;
 import java.util.Map.Entry;
 
 import org.camunda.bpm.engine.impl.bpmn.deployer.BpmnDeployer;
+import org.camunda.bpm.engine.impl.bpmn.parser.BpmnParse;
+import org.camunda.bpm.engine.impl.bpmn.parser.BpmnParser;
+import org.camunda.bpm.engine.impl.cfg.DefaultBpmnParseFactory;
 import org.camunda.bpm.engine.impl.cmd.DeleteJobsCmd;
 import org.camunda.bpm.engine.impl.context.Context;
 import org.camunda.bpm.engine.impl.el.StartProcessVariableScope;
@@ -22,7 +25,9 @@ public class SimulatingBpmnDeployer extends BpmnDeployer {
   private static final Logger LOG = LoggerFactory.getLogger(SimulatingBpmnDeployer.class);
 
   public SimulatingBpmnDeployer(BpmnDeployer original) {
-    this.bpmnParser = original.getBpmnParser();
+    this.bpmnParser = new BpmnParser(original.getBpmnParser().getExpressionManager(), new DefaultBpmnParseFactory());
+    this.bpmnParser.getParseListeners().addAll(original.getBpmnParser().getParseListeners());
+    this.bpmnParser.getParseListeners().add(new SimulationParseListener());
     this.expressionManager = original.getExpressionManager();
     this.idGenerator = original.getIdGenerator();
   }
@@ -47,9 +52,9 @@ public class SimulatingBpmnDeployer extends BpmnDeployer {
     for (Entry<String, String> entry : map.entrySet()) {
       String activityId = entry.getKey();
       String simNextFire = entry.getValue();
-      
+
       Date duedate = (Date) expressionManager.createExpression(simNextFire).getValue(StartProcessVariableScope.getSharedInstance());
-      
+
       TimerEntity timer = new TimerEntity();
 
       timer.setDeploymentId(processDefinition.getDeploymentId());
@@ -57,7 +62,7 @@ public class SimulatingBpmnDeployer extends BpmnDeployer {
       timer.setProcessDefinitionKey(processDefinition.getKey());
       timer.setTenantId(processDefinition.getTenantId());
       timer.setDuedate(duedate);
-      
+
       timer.setJobHandlerType(StartProcessInstanceJobHandler.TYPE);
       timer.setJobHandlerConfigurationRaw(activityId);
 
@@ -68,9 +73,9 @@ public class SimulatingBpmnDeployer extends BpmnDeployer {
 
   protected void removeObsoleteStartEventSimulationJobs(ProcessDefinitionEntity processDefinition) {
     List<Job> jobsToDelete = getJobManager().findJobsByHandlerType(StartProcessInstanceJobHandler.TYPE);
-    for (Iterator<Job> iterator = jobsToDelete.iterator(); iterator.hasNext();) {
+    for (Iterator<Job> iterator = jobsToDelete.iterator(); iterator.hasNext(); ) {
       Job job = (Job) iterator.next();
-      if (! job.getProcessDefinitionKey().equals(processDefinition.getKey())) {
+      if (!job.getProcessDefinitionKey().equals(processDefinition.getKey())) {
         iterator.remove();
       }
     }
