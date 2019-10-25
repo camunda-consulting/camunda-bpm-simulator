@@ -1,9 +1,10 @@
 package com.camunda.consulting.simulator;
 
-import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.condition.AnyOf.anyOf;
+import static org.camunda.bpm.engine.test.assertions.ProcessEngineAssertions.assertThat;
 import static org.camunda.bpm.engine.test.assertions.ProcessEngineAssertions.init;
 import static org.camunda.bpm.engine.test.assertions.ProcessEngineTests.historyService;
+import static org.camunda.bpm.engine.test.assertions.ProcessEngineTests.runtimeService;
 
 import java.util.List;
 
@@ -77,24 +78,22 @@ public class SimulationExecutorTest {
     
     //redeployment, should not complete it afterwards
     SimulatorPlugin.resetProcessEngineElements();
-    SimulationExecutor.stopSimulation();
-    
+
     rule.getProcessEngine().getRepositoryService().createDeployment() 
         .addClasspathResource("stopSimulationAfterRedeployment.bpmn")
         .deploy();
 
-    ProcessInstance processInstance = rule.getProcessEngine().getRuntimeService().startProcessInstanceByKey("redeployment", "A-234");
-    
-    SimulationExecutor.execute(DateTime.now().toDate(), DateTime.now().plusSeconds(10).toDate());
-    count = historyService().createHistoricProcessInstanceQuery().processDefinitionKey("redeployment").completed().count();
-    assertThat(count).isEqualTo(61);
-    
+    ProcessInstance processInstance = runtimeService().startProcessInstanceByKey("redeployment", "A-234");
+
     ProcessEngineConfigurationImpl processEngineConfigurationImpl = (ProcessEngineConfigurationImpl) rule.getProcessEngine().getProcessEngineConfiguration();
-    assertThat(processEngineConfigurationImpl.getJobHandlers());
+    processEngineConfigurationImpl.getJobExecutor().start();
+    Thread.sleep(1_000);
+    processEngineConfigurationImpl.getJobExecutor().shutdown();
+
+    assertThat(processInstance).isNotEnded();
     
-    rule.getProcessEngine().getRuntimeService().deleteProcessInstance(processInstance.getId(), "Yee");
+    // re-activate again
     SimulatorPlugin.setProcessEngineElements();
-    SimulationExecutor.restartSimulation();
   }
   
   @Test
