@@ -63,9 +63,8 @@ public class PayloadGenerator {
    * Treats null as false. Treats numbers to be true iff greater than 0. Treats
    * strings to be true if their lower-case version equals "1", "true" or "yes".
    * Anything unknown is treated as false.
-   * 
-   * @param o
-   *          some object
+   *
+   * @param o some object
    * @return true or false
    */
   public Boolean toBoolean(Object o) {
@@ -83,9 +82,8 @@ public class PayloadGenerator {
   /**
    * Handles null, Date, Calendar and String (by DateFormat.parse). Anything
    * else will result in null.
-   * 
-   * @param o
-   *          some object
+   *
+   * @param o some object
    * @return the parsed date
    */
   public Date toDate(Object o) {
@@ -151,7 +149,7 @@ public class PayloadGenerator {
         firstnamesFemale = buffer.lines().toArray(String[]::new);
       } catch (IOException e) {
         LOG.error("Could not load female first names");
-        firstnamesFemale = new String[] { "Jane" };
+        firstnamesFemale = new String[]{"Jane"};
       }
     }
     return firstnamesFemale[(int) (Math.random() * firstnamesFemale.length)];
@@ -163,7 +161,7 @@ public class PayloadGenerator {
         firstnamesMale = buffer.lines().toArray(String[]::new);
       } catch (IOException e) {
         LOG.error("Could not load male first names");
-        firstnamesMale = new String[] { "John" };
+        firstnamesMale = new String[]{"John"};
       }
     }
     return firstnamesMale[(int) (Math.random() * firstnamesMale.length)];
@@ -171,7 +169,7 @@ public class PayloadGenerator {
 
   /**
    * Female/male 50:50
-   * 
+   *
    * @return some first name
    */
   public String firstname() {
@@ -187,7 +185,7 @@ public class PayloadGenerator {
         surnamesGerman = buffer.lines().toArray(String[]::new);
       } catch (IOException e) {
         LOG.error("Could not load german surnames");
-        surnamesGerman = new String[] { "Mustermann" };
+        surnamesGerman = new String[]{"Mustermann"};
       }
     }
     return surnamesGerman[(int) (Math.random() * surnamesGerman.length)];
@@ -199,7 +197,7 @@ public class PayloadGenerator {
         surnamesEnglish = buffer.lines().toArray(String[]::new);
       } catch (IOException e) {
         LOG.error("Could not load english surnames");
-        surnamesEnglish = new String[] { "Doe" };
+        surnamesEnglish = new String[]{"Doe"};
       }
     }
     return surnamesEnglish[(int) (Math.random() * surnamesEnglish.length)];
@@ -208,11 +206,9 @@ public class PayloadGenerator {
   /**
    * Evenly distributed birth date, minAge and maxAge in respect to current
    * simulation time.
-   * 
-   * @param minAge
-   *          minimum age
-   * @param maxAge
-   *          maximum age
+   *
+   * @param minAge minimum age
+   * @param maxAge maximum age
    * @return a birthdate
    */
   public Date uniformBirthdate(int minAge, int maxAge) {
@@ -233,42 +229,42 @@ public class PayloadGenerator {
 
   @SuppressWarnings("unchecked")
   public <T> T uniformFromArgs2(T o1, T o2) {
-    return (T) uniformFromArray(new Object[] { o1, o2 });
+    return (T) uniformFromArray(new Object[]{o1, o2});
   }
 
   @SuppressWarnings("unchecked")
   public <T> T uniformFromArgs3(T o1, T o2, T o3) {
-    return (T) uniformFromArray(new Object[] { o1, o2, o3 });
+    return (T) uniformFromArray(new Object[]{o1, o2, o3});
   }
 
   @SuppressWarnings("unchecked")
   public <T> T uniformFromArgs4(T o1, T o2, T o3, T o4) {
-    return (T) uniformFromArray(new Object[] { o1, o2, o3, o4 });
+    return (T) uniformFromArray(new Object[]{o1, o2, o3, o4});
   }
 
   @SuppressWarnings("unchecked")
   public <T> T uniformFromArgs5(T o1, T o2, T o3, T o4, T o5) {
-    return (T) uniformFromArray(new Object[] { o1, o2, o3, o4, o5 });
+    return (T) uniformFromArray(new Object[]{o1, o2, o3, o4, o5});
   }
 
   @SuppressWarnings("unchecked")
   public <T> T uniformFromArgs6(T o1, T o2, T o3, T o4, T o5, T o6) {
-    return (T) uniformFromArray(new Object[] { o1, o2, o3, o4, o5, o6 });
+    return (T) uniformFromArray(new Object[]{o1, o2, o3, o4, o5, o6});
   }
 
   @SuppressWarnings("unchecked")
   public <T> T uniformFromArgs7(T o1, T o2, T o3, T o4, T o5, T o6, T o7) {
-    return (T) uniformFromArray(new Object[] { o1, o2, o3, o4, o5, o6, o7 });
+    return (T) uniformFromArray(new Object[]{o1, o2, o3, o4, o5, o6, o7});
   }
 
   @SuppressWarnings("unchecked")
   public <T> T uniformFromArgs8(T o1, T o2, T o3, T o4, T o5, T o6, T o7, T o8) {
-    return (T) uniformFromArray(new Object[] { o1, o2, o3, o4, o5, o6, o7, o8 });
+    return (T) uniformFromArray(new Object[]{o1, o2, o3, o4, o5, o6, o7, o8});
   }
 
   @SuppressWarnings("unchecked")
   public <T> T uniformFromArgs9(T o1, T o2, T o3, T o4, T o5, T o6, T o7, T o8, T o9) {
-    return (T) uniformFromArray(new Object[] { o1, o2, o3, o4, o5, o6, o7, o8, o9 });
+    return (T) uniformFromArray(new Object[]{o1, o2, o3, o4, o5, o6, o7, o8, o9});
   }
 
   public Object uniformFromArray(Object[] objects) {
@@ -285,44 +281,45 @@ public class PayloadGenerator {
 
   @SuppressWarnings("unchecked")
   public <T> T betaFromArgs2(T o1, T o2, int alpha, int beta) {
-    return (T) betaFromArray(new Object[] { o1, o2, }, alpha, beta);
+    return (T) betaFromArray(new Object[]{o1, o2,}, alpha, beta);
   }
 
   @SuppressWarnings("unchecked")
   public <T> T betaFromArgs3(T o1, T o2, T o3, int alpha, int beta) {
-    return (T) betaFromArray(new Object[] { o1, o2, o3, }, alpha, beta);
+    return (T) betaFromArray(new Object[]{o1, o2, o3,}, alpha, beta);
   }
 
   @SuppressWarnings("unchecked")
   public <T> T betaFromArgs4(T o1, T o2, T o3, T o4, int alpha, int beta) {
-    return (T) betaFromArray(new Object[] { o1, o2, o3, o4 }, alpha, beta);
+    return (T) betaFromArray(new Object[]{o1, o2, o3, o4}, alpha, beta);
   }
 
   @SuppressWarnings("unchecked")
   public <T> T betaFromArgs5(T o1, T o2, T o3, T o4, T o5, int alpha, int beta) {
-    return (T) betaFromArray(new Object[] { o1, o2, o3, o4, o5 }, alpha, beta);
+    return (T) betaFromArray(new Object[]{o1, o2, o3, o4, o5}, alpha, beta);
   }
 
   @SuppressWarnings("unchecked")
   public <T> T betaFromArgs6(T o1, T o2, T o3, T o4, T o5, T o6, int alpha, int beta) {
-    return (T) betaFromArray(new Object[] { o1, o2, o3, o4, o5, o6 }, alpha, beta);
+    return (T) betaFromArray(new Object[]{o1, o2, o3, o4, o5, o6}, alpha, beta);
   }
 
   @SuppressWarnings("unchecked")
   public <T> T betaFromArgs7(T o1, T o2, T o3, T o4, T o5, T o6, T o7, int alpha, int beta) {
-    return (T) betaFromArray(new Object[] { o1, o2, o3, o4, o5, o6, o7 }, alpha, beta);
+    return (T) betaFromArray(new Object[]{o1, o2, o3, o4, o5, o6, o7}, alpha, beta);
   }
 
   @SuppressWarnings("unchecked")
   public <T> T betaFromArgs8(T o1, T o2, T o3, T o4, T o5, T o6, T o7, T o8, int alpha, int beta) {
-    return (T) betaFromArray(new Object[] { o1, o2, o3, o4, o5, o6, o7, o8 }, alpha, beta);
+    return (T) betaFromArray(new Object[]{o1, o2, o3, o4, o5, o6, o7, o8}, alpha, beta);
   }
 
   @SuppressWarnings("unchecked")
   public <T> T betaFromArgs9(T o1, T o2, T o3, T o4, T o5, T o6, T o7, T o8, T o9, int alpha, int beta) {
-    return (T) betaFromArray(new Object[] { o1, o2, o3, o4, o5, o6, o7, o8, o9 }, alpha, beta);
+    return (T) betaFromArray(new Object[]{o1, o2, o3, o4, o5, o6, o7, o8, o9}, alpha, beta);
   }
-  public Object betaFromArray(Object[] objects, int alpha, int beta){
+
+  public Object betaFromArray(Object[] objects, int alpha, int beta) {
     BetaDistribution bd = new BetaDistribution(alpha, beta);
     if (objects == null || objects.length == 0)
       return null;
@@ -332,48 +329,48 @@ public class PayloadGenerator {
 
   @SuppressWarnings("unchecked")
   public <T> T normalFromArgs2(T o1, T o2, double mean, double sDev) {
-    return (T) normalFromArray(new Object[] { o1, o2 }, mean, sDev);
+    return (T) normalFromArray(new Object[]{o1, o2}, mean, sDev);
   }
 
   @SuppressWarnings("unchecked")
   public <T> T normalFromArgs3(T o1, T o2, T o3, double mean, double sDev) {
-    return (T) normalFromArray(new Object[] { o1, o2, o3, }, mean, sDev);
+    return (T) normalFromArray(new Object[]{o1, o2, o3,}, mean, sDev);
   }
 
   @SuppressWarnings("unchecked")
   public <T> T normalFromArgs4(T o1, T o2, T o3, T o4, double mean, double sDev) {
-    return (T) normalFromArray(new Object[] { o1, o2, o3, o4 }, mean, sDev);
+    return (T) normalFromArray(new Object[]{o1, o2, o3, o4}, mean, sDev);
   }
 
   @SuppressWarnings("unchecked")
   public <T> T normalFromArgs5(T o1, T o2, T o3, T o4, T o5, double mean, double sDev) {
-    return (T) normalFromArray(new Object[] { o1, o2, o3, o4, o5 }, mean, sDev);
+    return (T) normalFromArray(new Object[]{o1, o2, o3, o4, o5}, mean, sDev);
   }
 
   @SuppressWarnings("unchecked")
   public <T> T normalFromArgs6(T o1, T o2, T o3, T o4, T o5, T o6, double mean, double sDev) {
-    return (T) normalFromArray(new Object[] { o1, o2, o3, o4, o5, o6 }, mean, sDev);
+    return (T) normalFromArray(new Object[]{o1, o2, o3, o4, o5, o6}, mean, sDev);
   }
 
   @SuppressWarnings("unchecked")
   public <T> T normalFromArgs7(T o1, T o2, T o3, T o4, T o5, T o6, T o7, double mean, double sDev) {
-    return (T) normalFromArray(new Object[] { o1, o2, o3, o4, o5, o6, o7 }, mean, sDev);
+    return (T) normalFromArray(new Object[]{o1, o2, o3, o4, o5, o6, o7}, mean, sDev);
   }
 
   @SuppressWarnings("unchecked")
   public <T> T normalFromArgs8(T o1, T o2, T o3, T o4, T o5, T o6, T o7, T o8, double mean, double sDev) {
-    return (T) normalFromArray(new Object[] { o1, o2, o3, o4, o5, o6, o7, o8 }, mean, sDev);
+    return (T) normalFromArray(new Object[]{o1, o2, o3, o4, o5, o6, o7, o8}, mean, sDev);
   }
 
   @SuppressWarnings("unchecked")
   public <T> T normalFromArgs9(T o1, T o2, T o3, T o4, T o5, T o6, T o7, T o8, T o9, double mean, double sDev) {
-    return (T) normalFromArray(new Object[] { o1, o2, o3, o4, o5, o6, o7, o8, o9 }, mean, sDev);
+    return (T) normalFromArray(new Object[]{o1, o2, o3, o4, o5, o6, o7, o8, o9}, mean, sDev);
   }
 
-  public Object normalFromArray(Object[] objects, double mean, double sDev){
+  public Object normalFromArray(Object[] objects, double mean, double sDev) {
     NormalDistribution nd = null;
 
-    if(mean == 0 && sDev == 0){
+    if (mean == 0 && sDev == 0) {
       nd = new NormalDistribution(0.5, 0.30);
     } else {
       nd = new NormalDistribution(mean, sDev);
@@ -389,7 +386,7 @@ public class PayloadGenerator {
       if (index < 0) {
         return objects[0];
       } else {
-          return objects[index];
+        return objects[index];
       }
     }
 
@@ -397,11 +394,9 @@ public class PayloadGenerator {
 
   /**
    * As always min lq returnValue le max.
-   * 
-   * @param min
-   *          minimum value
-   * @param max
-   *          maximum value
+   *
+   * @param min minimum value
+   * @param max maximum value
    * @return a random value
    */
   public Short uniformShort(short min, short max) {
@@ -410,11 +405,9 @@ public class PayloadGenerator {
 
   /**
    * As always min lq returnValue le max.
-   * 
-   * @param min
-   *          minimum value
-   * @param max
-   *          maximum value
+   *
+   * @param min minimum value
+   * @param max maximum value
    * @return a random value
    */
   public Integer uniformInt(int min, int max) {
@@ -424,11 +417,11 @@ public class PayloadGenerator {
   /**
    * Returns a normally distributed value around a mean value with standard
    * deviation. A name of the distribution must be given to keep the state.
-   * 
-   * @param distributionName
-   * @param mean
-   * @param standardDeviation
-   * @return
+   *
+   * @param distributionName name
+   * @param mean mean
+   * @param standardDeviation stdD
+   * @return random value
    */
   public Double normal(String distributionName, double mean, double standardDeviation) {
     return getNormalDistribution(distributionName, mean, standardDeviation).sample();
@@ -436,11 +429,9 @@ public class PayloadGenerator {
 
   /**
    * As always min lq returnValue le max.
-   * 
-   * @param min
-   *          minimum value
-   * @param max
-   *          maximum value
+   *
+   * @param min minimum value
+   * @param max maximum value
    * @return a random value
    */
   public Long uniformLong(long min, long max) {
@@ -449,11 +440,9 @@ public class PayloadGenerator {
 
   /**
    * As always min lq returnValue le max.
-   * 
-   * @param min
-   *          minimum value
-   * @param max
-   *          maximum value
+   *
+   * @param min minimum value
+   * @param max maximum value
    * @return a random value
    */
   public Double uniformDouble(double min, double max) {
@@ -553,133 +542,128 @@ public class PayloadGenerator {
 
   @SuppressWarnings("unchecked")
   public <T> List<T> listFromArgs1(T o1) {
-    return (List<T>) listFromArray(new Object[] { o1 });
+    return (List<T>) listFromArray(new Object[]{o1});
   }
 
   @SuppressWarnings("unchecked")
   public <T> List<T> listFromArgs2(T o1, T o2) {
-    return (List<T>) listFromArray(new Object[] { o1, o2 });
+    return (List<T>) listFromArray(new Object[]{o1, o2});
   }
 
   @SuppressWarnings("unchecked")
   public <T> List<T> listFromArgs3(T o1, T o2, T o3) {
-    return (List<T>) listFromArray(new Object[] { o1, o2, o3 });
+    return (List<T>) listFromArray(new Object[]{o1, o2, o3});
   }
 
   @SuppressWarnings("unchecked")
   public <T> List<T> listFromArgs4(T o1, T o2, T o3, T o4) {
-    return (List<T>) listFromArray(new Object[] { o1, o2, o3, o4 });
+    return (List<T>) listFromArray(new Object[]{o1, o2, o3, o4});
   }
 
   @SuppressWarnings("unchecked")
   public <T> List<T> listFromArgs5(T o1, T o2, T o3, T o4, T o5) {
-    return (List<T>) listFromArray(new Object[] { o1, o2, o3, o4, o5 });
+    return (List<T>) listFromArray(new Object[]{o1, o2, o3, o4, o5});
   }
 
   @SuppressWarnings("unchecked")
   public <T> List<T> listFromArgs6(T o1, T o2, T o3, T o4, T o5, T o6) {
-    return (List<T>) listFromArray(new Object[] { o1, o2, o3, o4, o5, o6 });
+    return (List<T>) listFromArray(new Object[]{o1, o2, o3, o4, o5, o6});
   }
 
   @SuppressWarnings("unchecked")
   public <T> List<T> listFromArgs7(T o1, T o2, T o3, T o4, T o5, T o6, T o7) {
-    return (List<T>) listFromArray(new Object[] { o1, o2, o3, o4, o5, o6, o7 });
+    return (List<T>) listFromArray(new Object[]{o1, o2, o3, o4, o5, o6, o7});
   }
 
   @SuppressWarnings("unchecked")
   public <T> List<T> listFromArgs8(T o1, T o2, T o3, T o4, T o5, T o6, T o7, T o8) {
-    return (List<T>) listFromArray(new Object[] { o1, o2, o3, o4, o5, o6, o7, o8 });
+    return (List<T>) listFromArray(new Object[]{o1, o2, o3, o4, o5, o6, o7, o8});
   }
 
   @SuppressWarnings("unchecked")
   public <T> List<T> listFromArgs9(T o1, T o2, T o3, T o4, T o5, T o6, T o7, T o8, T o9) {
-    return (List<T>) listFromArray(new Object[] { o1, o2, o3, o4, o5, o6, o7, o8, o9 });
+    return (List<T>) listFromArray(new Object[]{o1, o2, o3, o4, o5, o6, o7, o8, o9});
   }
 
   /**
-   * Current process engine's time.
-   * 
-   * @return
+   * @return Current process engine's time.
    */
   public Date now() {
     return ClockUtil.getCurrentTime();
   }
 
   /**
-   * Current process engine's time plus given amount of milliseconds (negative
+   *
+   * @param millis millis
+   * @return Current process engine's time plus given amount of milliseconds (negative
    * values allowed).
-   * 
-   * @return
    */
   public Date nowPlusMillis(int millis) {
     return nowPlusPeriod(Duration.ofMillis(millis));
   }
 
   /**
-   * Current process engine's time plus given amount of seconds (negative values
+   *
+   * @param seconds seconds
+   * @return Current process engine's time plus given amount of seconds (negative values
    * allowed).
-   * 
-   * @return
    */
   public Date nowPlusSeconds(int seconds) {
     return nowPlusPeriod(Duration.ofSeconds(seconds));
   }
 
   /**
-   * Current process engine's time plus given amount of minutes (negative values
+   *
+   * @param minutes minutes
+   * @return Current process engine's time plus given amount of minutes (negative values
    * allowed).
-   * 
-   * @return
    */
   public Date nowPlusMinutes(int minutes) {
     return nowPlusPeriod(Duration.ofMinutes(minutes));
   }
 
   /**
-   * Current process engine's time plus given amount of hours (negative values
+   *
+   * @param hours hours
+   * @return Current process engine's time plus given amount of hours (negative values
    * allowed).
-   * 
-   * @return
    */
   public Date nowPlusHours(int hours) {
     return nowPlusPeriod(Duration.ofHours(hours));
   }
 
   /**
-   * Current process engine's time plus given amount of days (negative values
+   *
+   * @param days days
+   * @return Current process engine's time plus given amount of days (negative values
    * allowed).
-   * 
-   * @return
    */
   public Date nowPlusDays(int days) {
     return nowPlusPeriod(Period.ofDays(days));
   }
 
   /**
-   * Current process engine's time plus given amount of weeks (negative values
+   * @param weeks weeks
+   * @return Current process engine's time plus given amount of weeks (negative values
    * allowed).
-   * 
-   * @return
    */
   public Date nowPlusWeeks(int weeks) {
     return nowPlusPeriod(Period.ofWeeks(weeks));
   }
 
   /**
-   * Current process engine's time plus given amount of months (negative values
+   * @param months months
+   * @return Current process engine's time plus given amount of months (negative values
    * allowed).
-   * 
-   * @return
    */
   public Date nowPlusMonths(int months) {
     return nowPlusPeriod(Period.ofMonths(months));
   }
 
   /**
-   * Current process engine's time plus given amount of years (negative values
+   * @param years years
+   * @return Current process engine's time plus given amount of years (negative values
    * allowed).
-   * 
-   * @return
    */
   public Date nowPlusYears(int years) {
     return nowPlusPeriod(Period.ofYears(years));
@@ -694,16 +678,12 @@ public class PayloadGenerator {
    * Calculates the next time based on current time such that consecutive
    * calling of this function provides approximately 'times' results per day
    * between 'morning' and 'evening'.
-   * 
-   * @param uniqueName
-   *          To identify the distribution used
-   * @param morning
-   *          in format 'hh:mm'
-   * @param evening
-   *          in format 'hh:mm'
-   * @param times
-   *          must be at least 1
-   * @return
+   *
+   * @param uniqueName To identify the distribution used
+   * @param morning    in format 'hh:mm'
+   * @param evening    in format 'hh:mm'
+   * @param times      must be at least 1
+   * @return new date
    */
   public Date timesPerDay(String uniqueName, String morning, String evening, long times) {
     if (times < 1) {
@@ -747,13 +727,11 @@ public class PayloadGenerator {
   }
 
   /**
-   * Returns an integer that linearly increases from start to end of a history
+   * @param min min
+   * @param max max
+   * @return Returns an integer that linearly increases from start to end of a history
    * simulation between min and max. If no history simulation is running, max is
    * returned.
-   * 
-   * @param min
-   * @param max
-   * @return
    */
   public Integer linearBySimulationTime(int min, int max) {
     return min + (int) (SimulationExecutor.getProgress() * (max - min));
@@ -765,12 +743,14 @@ public class PayloadGenerator {
    * min and max. If simulation time not reached startPercentage, min is
    * returned. If simulation time is beyound endPercentage or no simulation is
    * running, max is returned.
-   * 
+   * <p>
    * If no history simulation is running, always max is returned.
-   * 
-   * @param min
-   * @param max
-   * @return
+   *
+   * @param min             min
+   * @param max             max
+   * @param startPercentage start percentage
+   * @param endPercentage   end percentage
+   * @return linearly increasing value between min and max
    */
   public Integer linearBySimulationTimeInInterval(int min, int max, double startPercentage, double endPercentage) {
     if (SimulationExecutor.getProgress() < startPercentage) {
@@ -783,11 +763,12 @@ public class PayloadGenerator {
   }
 
   /**
-   * Returns an integer that exponentially increases from start to end of a
+   * @param min      min
+   * @param max      max
+   * @param exponent exponent
+   * @return Returns an integer that exponentially increases from start to end of a
    * history simulation between min and max. If no history simulation is
    * running, max is returned.
-   * 
-   * @return
    */
   public Integer exponentialBySimulationTime(int min, int max, double exponent) {
     final int result = min + (int) (Math.pow(SimulationExecutor.getProgress(), exponent) * (max - min));
