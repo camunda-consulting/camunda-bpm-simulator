@@ -12,10 +12,9 @@
 	<description>Demonstrates the features and usage of the simulator plugin.</description>
 
 	<properties>
-		<camunda.version>7.9.6-ee</camunda.version>
+		<camunda.version>7.12.3-ee</camunda.version>
 		<!-- <camunda.version>7.9.0</camunda.version> -->
-		<camundaSpringBoot.version>3.0.0</camundaSpringBoot.version>
-		<springBoot.version>2.0.2.RELEASE</springBoot.version>
+		<springBoot.version>2.2.5.RELEASE</springBoot.version>
 
 		<maven.compiler.source>1.8</maven.compiler.source>
 		<maven.compiler.target>1.8</maven.compiler.target>
@@ -55,20 +54,20 @@
 		<dependency>
 			<groupId>com.camunda.consulting</groupId>
 			<artifactId>camunda-bpm-simulator</artifactId>
-			<version>1.3.0-SNAPSHOT</version>
+			<version>1.4.0-SNAPSHOT</version>
 		</dependency>
 
 		<dependency>
 			<groupId>org.camunda.bpm.springboot</groupId>
 			<artifactId>camunda-bpm-spring-boot-starter-webapp-ee</artifactId>
 			<!-- <artifactId>camunda-bpm-spring-boot-starter-webapp</artifactId> -->
-			<version>${camundaSpringBoot.version}</version>
+			<version>3.3.5</version>
 		</dependency>
 
 		<dependency>
 			<groupId>org.camunda.bpm.springboot</groupId>
 			<artifactId>camunda-bpm-spring-boot-starter-rest</artifactId>
-			<version>${camundaSpringBoot.version}</version>
+			<version>3.3.5</version>
 		</dependency>
 
 		<dependency>

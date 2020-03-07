@@ -12,9 +12,11 @@ import org.camunda.bpm.engine.ProcessEngine;
 import org.camunda.bpm.engine.impl.Page;
 import org.camunda.bpm.engine.impl.ProcessDefinitionQueryImpl;
 import org.camunda.bpm.engine.impl.cfg.ProcessEngineConfigurationImpl;
+import org.camunda.bpm.engine.impl.db.DbEntity;
 import org.camunda.bpm.engine.impl.interceptor.Command;
 import org.camunda.bpm.engine.impl.interceptor.CommandContext;
 import org.camunda.bpm.engine.impl.interceptor.CommandExecutor;
+import org.camunda.bpm.engine.impl.persistence.entity.AcquirableJobEntity;
 import org.camunda.bpm.engine.impl.persistence.entity.JobEntity;
 import org.camunda.bpm.engine.impl.persistence.entity.ProcessDefinitionEntity;
 import org.camunda.bpm.engine.impl.util.ClockUtil;
@@ -50,23 +52,24 @@ public class SimulationExecutor {
 
       updateStartTimersForCurrentTime(commandExecutor);
 
-      Optional<Job> job;
+      Optional<Job> nextJobDueAfterNow;
+      do {
+        // execute all jobs that are due before current time
+        Optional<AcquirableJobEntity> nextExecutableJob;
         do {
-          // execute all jobs that are due before current time
-          do {
-            // work around engine "bug"
-            makeTimeGoBy();
+          // work around engine "bug"
+          makeTimeGoBy();
 
-            // by setting the processEngineConfigurationImpl.setJobExecutor*
-            // properties we can be sure to get the next job with minimum due date
-            List<JobEntity> jobs = commandExecutor.execute(new Command<List<JobEntity>>() {
-              @Override
-              public List<JobEntity> execute(CommandContext commandContext) {
-                return commandContext.getJobManager().findNextJobsToExecute(new Page(0, 1));
-              }
-            });
-            job = jobs.stream().map(jobEntity -> (Job) jobEntity).findFirst();
-            job.map(Job::getId).ifPresent(processEngine.getManagementService()::executeJob);
+          // by setting the processEngineConfigurationImpl.setJobExecutor*
+          // properties we can be sure to get the next job with minimum due date
+          List<AcquirableJobEntity> jobs = commandExecutor.execute(new Command<List<AcquirableJobEntity>>() {
+            @Override
+            public List<AcquirableJobEntity> execute(CommandContext commandContext) {
+              return commandContext.getJobManager().findNextJobsToExecute(new Page(0, 1));
+            }
+          });
+          nextExecutableJob = jobs.stream().map(jobEntity -> (AcquirableJobEntity) jobEntity).findFirst();
+          nextExecutableJob.map(DbEntity::getId).ifPresent(processEngine.getManagementService()::executeJob);
 
           // write metrics from time to time
           final LocalDateTime simulationTime = ClockUtil.getCurrentTime().toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime();
@@ -74,21 +77,21 @@ public class SimulationExecutor {
             lastMetricUpdate = simulationTime;
             processEngineConfigurationImpl.getDbMetricsReporter().reportNow();
           }
-        } while (job.isPresent() && (job.get().getDuedate() == null || !job.get().getDuedate().after(end)));
+        } while (nextExecutableJob.isPresent() && (nextExecutableJob.get().getDuedate() == null || !nextExecutableJob.get().getDuedate().after(end)));
 
         // get the next job that is due after current time and adjust clock to
         // its due date
-        job = processEngine.getManagementService().createJobQuery().active().withRetriesLeft().orderByJobDuedate().asc().listPage(0, 1).stream().findFirst();
-        job.map(Job::getDuedate).ifPresent(ClockUtil::setCurrentTime);
+        nextJobDueAfterNow = processEngine.getManagementService().createJobQuery().active().withRetriesLeft().orderByJobDuedate().asc().listPage(0, 1).stream().findFirst();
+        nextJobDueAfterNow.map(Job::getDuedate).ifPresent(ClockUtil::setCurrentTime);
         progress = Math.min(1, (ClockUtil.getCurrentTime().getTime() - start.getTime()) / (double) (end.getTime() - start.getTime()));
 
         LOG.debug("Advance simulation time to: " + ClockUtil.getCurrentTime());
-      } while (job.isPresent() && (job.get().getDuedate() == null || !job.get().getDuedate().after(end)));
+      } while (nextJobDueAfterNow.isPresent() && (nextJobDueAfterNow.get().getDuedate() == null || !nextJobDueAfterNow.get().getDuedate().after(end)));
     });
   }
 
   private static void runWithPreparedEngineConfiguration(ProcessEngineConfigurationImpl processEngineConfigurationImpl, CommandExecutor commandExecutor,
-      Runnable runnable) {
+                                                         Runnable runnable) {
 
     boolean metrics = processEngineConfigurationImpl.isMetricsEnabled() && processEngineConfigurationImpl.isDbMetricsReporterActivate();
     boolean jobExecutorEnabled = processEngineConfigurationImpl.getJobExecutor().isActive();
@@ -153,12 +156,12 @@ public class SimulationExecutor {
     /*
      * Caused by DurationHelper.getDateAfterRepeat: return next.before(date) ?
      * null : next;
-     * 
+     *
      * This leads to endless loop if we call a timer job at exactly the time it
      * will schedule next. Cannot be handled by engine, because there is no
      * "counter" in the database for executions - it has to trust the clock on
      * the wall.
-     * 
+     *
      * Hence, we solve that by advancing the time as it would happen in real
      * live systems...
      */
