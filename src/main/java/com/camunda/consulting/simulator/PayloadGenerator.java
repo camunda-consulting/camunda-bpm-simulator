@@ -21,6 +21,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 import org.apache.commons.math3.distribution.NormalDistribution;
 import org.apache.commons.math3.distribution.BetaDistribution;
@@ -478,6 +479,10 @@ public class PayloadGenerator {
 
   public Long uniqueNumber() {
     return uniqueNumber++;
+  }
+
+  public String uuid() {
+	return UUID.randomUUID().toString();
   }
 
   public String email(String name, String company) {
