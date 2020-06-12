@@ -1,0 +1,5 @@
+@Library(["camunda-ci", "camunda-consulting"]) _
+
+def settings = getDefaultsForMavenDeploy() // function from `camunda-consulting` Library
+buildMavenAndDeploy settings               // function from `camunda-ci` 
+
