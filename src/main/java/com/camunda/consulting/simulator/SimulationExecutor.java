@@ -124,7 +124,7 @@ public class SimulationExecutor {
         processEngineConfigurationImpl.getDbMetricsReporter().reportNow();
 
         processEngineConfigurationImpl.getDbMetricsReporter()
-            .setReporterId(processEngineConfigurationImpl.getMetricsReporterIdProvider().provideId(processEngineConfigurationImpl.getProcessEngine()));
+            .setReporterId(processEngineConfigurationImpl.getHostnameProvider().getHostname(processEngineConfigurationImpl));
       }
       processEngineConfigurationImpl.setJobExecutorAcquireByPriority(jobExecutorAcquireByPriority);
       processEngineConfigurationImpl.setJobExecutorPreferTimerJobs(jobExecutorPreferTimerJobs);
