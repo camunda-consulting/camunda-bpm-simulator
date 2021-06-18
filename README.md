@@ -102,7 +102,7 @@ By default, the shipped payload generator is used, so it is always possible to u
   <dependency>
     <groupId>com.camunda.consulting</groupId>
     <artifactId>camunda-bpm-simulator</artifactId>
-    <version>1.1.2</version>
+    <version>1.6.0</version>
   </dependency>
   ```
 
